@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/dita-daystaruni/verisafe/internal/models/roles"
+	"github.com/dita-daystaruni/verisafe/internal/models/user"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -35,5 +36,5 @@ func Connect() (*gorm.DB, error) {
 }
 
 func AutoMigrate() {
-	DB.AutoMigrate(&roles.Role{})
+	DB.AutoMigrate(&roles.Role{}, &user.User{})
 }
