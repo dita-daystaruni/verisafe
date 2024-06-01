@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dita-daystaruni/verisafe/internal/models/roles"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,14 +24,16 @@ func Connect() (*gorm.DB, error) {
 	)
 
 	// Attempt to open a connection
-	DB, err := gorm.Open(postgres.Open(dns), &gorm.Config{})
+	con, err := gorm.Open(postgres.Open(dns), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
+	DB = con
 
 	// Return the db instance
 	return DB, nil
 }
 
 func AutoMigrate() {
+	DB.AutoMigrate(&roles.Role{})
 }

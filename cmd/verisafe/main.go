@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	_ "github.com/dita-daystaruni/verisafe/config" // Side effect for loafing env vars
+	"github.com/dita-daystaruni/verisafe/internal/handlers"
 )
 
 func main() {
-	fmt.Println("Authentication server coming soon")
+	handlers.Serve()
 }
