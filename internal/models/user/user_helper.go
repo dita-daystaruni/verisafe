@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/dita-daystaruni/verisafe/pkg/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -22,7 +23,10 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	u.Email = strings.TrimSpace(u.Email)
 	u.Campus = strings.TrimSpace(u.Campus)
 	u.ProfileURL = strings.TrimSpace(u.ProfileURL)
-	u.Password = strings.TrimSpace(u.Password)
+	u.Password, err = utils.HashPassword(strings.TrimSpace(u.Password))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
