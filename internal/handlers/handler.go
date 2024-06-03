@@ -6,7 +6,7 @@ import (
 
 	"github.com/dita-daystaruni/verisafe/config/db"
 	roleHandler "github.com/dita-daystaruni/verisafe/internal/handlers/roles"
-	"github.com/dita-daystaruni/verisafe/internal/handlers/users"
+	userhandlers "github.com/dita-daystaruni/verisafe/internal/handlers/user_handlers"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -38,13 +38,23 @@ func Serve() {
 	server.DELETE("/roles/delete/:id", rh.DeleteRole)
 
 	// User handling
-	uh := users.UserHandler{DB: db_instance}
-	server.POST("/users/register", uh.CreateUser)
-	server.GET("/users/all", uh.GetAllUsers)
-	server.GET("/users/find/:id", uh.GetUserByID)
-	server.PATCH("/users/update/:id", uh.UpdateUser)
-	server.DELETE("/users/delete/:id", uh.DeleteUser)
+	suh := userhandlers.SystemUserHandler{DB: db_instance}
+	server.POST("/system-users/register", suh.CreateSystemUser)
+	server.GET("/system-users/all", suh.GetAllSystemUsers)
+	server.GET("/system-users/find/:id", suh.GetSystemUser)
+	server.PATCH("/system-users/update/:id", suh.UpdateSystemUser)
+	server.DELETE("/system-users/delete/:id", suh.DeleteSystemUser)
 
+	// Student handlers
+	sh := userhandlers.StudentHandler{DB: db_instance}
+	server.POST("/students/register", sh.CreateStudent)
+	server.GET("/students/all", sh.GetAllStudents)
+	server.GET("/students/find/:id", sh.GetStudentByID)
+	server.GET("/students/details/:admno", sh.GetStudentByAdmni)
+	server.PATCH("/students/update/:id", sh.UpdateStudentDetails)
+	server.DELETE("/students/delete/:id", sh.DeleteStudent)
+
+	//  Run
 	server.Run(":8080")
 }
 

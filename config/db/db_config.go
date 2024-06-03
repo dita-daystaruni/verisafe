@@ -35,6 +35,7 @@ func Connect() (*gorm.DB, error) {
 	return DB, nil
 }
 
+// Migrates the database automatically creating necessary database objects
 func AutoMigrate() {
-	DB.AutoMigrate(&roles.Role{}, &user.User{})
+	DB.AutoMigrate(&roles.Role{}, &user.Student{}, &user.SystemUser{})
 }
