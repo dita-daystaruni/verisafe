@@ -31,5 +31,5 @@ func RegisterHandlers(server *Server) {
 	server.GET("/students/find/id/:id", uh.GetStudentByID)
 	server.GET("/students/find/admno/:admno", uh.GetStudentByAmno)
 	server.PATCH("/students/update/:id", uh.UpdateStudent)
-	server.Delete("/students/delete/:id", uh.DeleteStudent)
+	server.DELETE("/students/delete/:id", uh.DeleteStudent)
 }

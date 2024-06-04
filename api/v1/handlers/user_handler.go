@@ -94,13 +94,13 @@ func (uh *UserHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
-	s, err := uh.Store.UpdateStudentDetails(student)
+	_, err = uh.Store.UpdateStudentDetails(student)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, s)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 
 func (uh *UserHandler) DeleteStudent(c *gin.Context) {
