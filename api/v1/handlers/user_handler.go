@@ -79,6 +79,17 @@ func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, student)
 }
 
+func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
+	username := c.Param("username")
+
+	student, err := uh.Store.GetStudentByUsername(username)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, student)
+}
+
 func (uh *UserHandler) UpdateStudent(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)

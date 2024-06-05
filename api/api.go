@@ -30,6 +30,7 @@ func RegisterHandlers(server *Server) {
 	server.GET("/students/all/:campus", uh.GetCampusStudents)
 	server.GET("/students/find/id/:id", uh.GetStudentByID)
 	server.GET("/students/find/admno/:admno", uh.GetStudentByAmno)
+	server.GET("/students/find/username/:username", uh.GetStudentByUsername)
 	server.PATCH("/students/update/:id", uh.UpdateStudent)
 	server.DELETE("/students/delete/:id", uh.DeleteStudent)
 }

@@ -37,6 +37,16 @@ func (ss *StudentStore) GetStudentByID(id uuid.UUID) (*models.Student, error) {
 	return &student, nil
 }
 
+// Retrieves a student specified by username
+func (ss *StudentStore) GetStudentByUsername(username string) (*models.Student, error) {
+	var student models.Student
+	if err := ss.DB.Where("username = ? ", username).First(&student).Error; err != nil {
+		return nil, err
+	}
+
+	return &student, nil
+}
+
 // Retrieves a student specified by admno
 func (ss *StudentStore) GetStudentByAdmno(admno string) (*models.Student, error) {
 	var student models.Student
@@ -70,7 +80,7 @@ func (ss *StudentStore) GetAllStudents() (*[]models.Student, error) {
 // Updates a student's details in the database
 func (ss *StudentStore) UpdateStudentDetails(student models.Student) (bool, error) {
 	stored := models.Student{
-		UserName:    student.UserName,
+		Username:    student.Username,
 		FirstName:   student.FirstName,
 		LastName:    student.LastName,
 		Email:       student.Email,
