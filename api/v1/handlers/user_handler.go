@@ -34,7 +34,7 @@ func (uh *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := auth.GenerateToken(s.ID, false, uh.Cfg)
+	token, err := auth.GenerateToken(s.ID, s.Username, false, uh.Cfg)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -11,9 +11,10 @@ import (
 
 // Generates a jwt token that can be used to authenticate
 // a user
-func GenerateToken(id uuid.UUID, isAdmin bool, cfg *configs.Config) (string, error) {
+func GenerateToken(id uuid.UUID, username string, isAdmin bool, cfg *configs.Config) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  id.String(),
+		"username": username,
 		"is_admin": isAdmin,
 		"exp":      time.Now().Add(time.Duration(cfg.JWTConfig.ExpireDelta) * time.Minute).Unix(),
 	})
@@ -30,7 +31,7 @@ func GenerateToken(id uuid.UUID, isAdmin bool, cfg *configs.Config) (string, err
 // Verifies a user's token
 func VerifyToken(tokenString string, cfg *configs.Config) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return cfg.JWTConfig.ApiSecret, nil
+		return []byte(cfg.JWTConfig.ApiSecret), nil
 	})
 	if err != nil {
 		return nil, err
