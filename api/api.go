@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/dita-daystaruni/verisafe/api/middlewares"
 	"github.com/dita-daystaruni/verisafe/api/v1/handlers"
 	"github.com/dita-daystaruni/verisafe/models/db"
 	"github.com/gin-contrib/cors"
@@ -23,10 +24,12 @@ func RegisterHandlers(server *Server) {
 	})
 
 	// Student CRUD operations
-	uh := handlers.UserHandler{Store: &db.StudentStore{DB: server.DB}}
+	uh := handlers.UserHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
+	mc := middlewares.MiddleWareConfig{Cfg: server.Config}
 
+	server.POST("/students/login/", uh.Login)
 	server.POST("/students/register/", uh.RegisterStudent)
-	server.GET("/students/all", uh.GetAllStudents)
+	server.GET("/students/all", mc.RequireValidToken, uh.GetAllStudents)
 	server.GET("/students/all/:campus", uh.GetCampusStudents)
 	server.GET("/students/find/id/:id", uh.GetStudentByID)
 	server.GET("/students/find/admno/:admno", uh.GetStudentByAmno)

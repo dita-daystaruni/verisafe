@@ -13,13 +13,13 @@ import (
 // a user
 func GenerateToken(id uuid.UUID, isAdmin bool, cfg *configs.Config) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user":     id.String(),
+		"user_id":  id.String(),
 		"is_admin": isAdmin,
 		"exp":      time.Now().Add(time.Duration(cfg.JWTConfig.ExpireDelta) * time.Minute).Unix(),
 	})
 
 	// Sign with the API secret
-	tokenString, err := claims.SignedString(cfg.JWTConfig.ApiSecret)
+	tokenString, err := claims.SignedString([]byte(cfg.JWTConfig.ApiSecret))
 	if err != nil {
 		return "", err
 	}

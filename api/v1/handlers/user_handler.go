@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/dita-daystaruni/verisafe/api/auth"
+	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/dita-daystaruni/verisafe/models/db"
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,36 @@ import (
 
 type UserHandler struct {
 	Store *db.StudentStore
+	Cfg   *configs.Config
+}
+
+func (uh *UserHandler) Login(c *gin.Context) {
+	var student models.Student
+	if err := c.ShouldBindJSON(&student); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify username and password"})
+		return
+	}
+
+	s, err := uh.Store.GetStudentByUsername(student.Username)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if ok, err := s.ComparePassword(student.Password); err != nil || !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Please check your username and password"})
+		return
+	}
+
+	token, err := auth.GenerateToken(s.ID, false, uh.Cfg)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Token", token)
+
+	c.IndentedJSON(http.StatusOK, s)
 }
 
 func (uh *UserHandler) RegisterStudent(c *gin.Context) {
