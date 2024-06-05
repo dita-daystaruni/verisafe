@@ -7,11 +7,12 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type Student struct {
 	ID              uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
-	UserName        string    `gorm:"uniqueIndex;not null" json:"username"`
+	Username        string    `gorm:"uniqueIndex;not null" json:"username"`
 	FirstName       string    `json:"first_name"`
 	LastName        string    `json:"last_name"`
 	AdmissionNumber string    `gorm:"uniqueIndex" json:"admission_number"`
@@ -61,7 +62,7 @@ func (u *Student) ComparePassword(password string) (bool, error) {
 
 func (u *Student) VerifyDetails() error {
 	// Username
-	if len(u.UserName) < 3 {
+	if len(u.Username) < 3 {
 		return errors.New("Please try a username with more than 3 characters")
 	}
 
@@ -95,4 +96,13 @@ func (u *Student) VerifyDetails() error {
 	}
 
 	return nil
+}
+
+// hooks
+func (u *Student) BeforeCreate(tx *gorm.DB) (err error) {
+	return u.HashPassword()
+}
+
+func (u *Student) BeforeUpdate(tx *gorm.DB) (err error) {
+	return u.HashPassword()
 }

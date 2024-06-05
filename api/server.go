@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/models/db"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,6 +38,7 @@ func NewServer() (*Server, error) {
 
 // binds and runs the server additionally it sets the various cors headers
 func (s *Server) RunServer() {
+	db.AutoMigrate(s.DB)
 	RegisterHandlers(s)
 	s.Run(fmt.Sprintf(":%d", s.AppConfig.Port))
 }

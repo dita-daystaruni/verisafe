@@ -37,6 +37,16 @@ func (ss *StudentStore) GetStudentByID(id uuid.UUID) (*models.Student, error) {
 	return &student, nil
 }
 
+// Retrieves a student specified by username
+func (ss *StudentStore) GetStudentByUsername(username string) (*models.Student, error) {
+	var student models.Student
+	if err := ss.DB.Where("username = ? ", username).First(&student).Error; err != nil {
+		return nil, err
+	}
+
+	return &student, nil
+}
+
 // Retrieves a student specified by admno
 func (ss *StudentStore) GetStudentByAdmno(admno string) (*models.Student, error) {
 	var student models.Student
@@ -68,32 +78,25 @@ func (ss *StudentStore) GetAllStudents() (*[]models.Student, error) {
 }
 
 // Updates a student's details in the database
-func (ss *StudentStore) UpdateStudentDetails(student models.Student) (*models.Student, error) {
-	stored := models.Student{}
-
-	if err := ss.DB.First(&stored, student.ID).Error; err != nil {
-		return nil, err
+func (ss *StudentStore) UpdateStudentDetails(student models.Student) (bool, error) {
+	stored := models.Student{
+		Username:    student.Username,
+		FirstName:   student.FirstName,
+		LastName:    student.LastName,
+		Email:       student.Email,
+		Password:    student.Password,
+		Campus:      student.Campus,
+		DateOfBirth: student.DateOfBirth,
+		Active:      student.Active,
+		DateUpdated: time.Now(),
 	}
 
-	stored.UserName = student.UserName
-	stored.FirstName = student.FirstName
-	stored.LastName = student.LastName
-	stored.Active = student.Active
-	stored.Campus = student.Campus
-	stored.Email = student.Email
-	stored.Address = student.Address
-	stored.Password = student.Password
-	stored.DateUpdated = time.Now()
-
-	if err := stored.VerifyDetails(); err != nil {
-		return nil, err
+	err := ss.DB.Debug().Model(&models.Student{}).Where("id = ?", student.ID).Updates(&stored).Error
+	if err != nil {
+		return false, err
 	}
 
-	if err := ss.DB.Save(&stored).Error; err != nil {
-		return nil, err
-	}
-
-	return &stored, nil
+	return true, nil
 }
 
 // Deletes a student specified by id from the database
