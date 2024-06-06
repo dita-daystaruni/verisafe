@@ -26,6 +26,7 @@ func RegisterHandlers(server *Server) {
 	// Student CRUD operations
 	uh := handlers.UserHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
 	mc := middlewares.MiddleWareConfig{Cfg: server.Config}
+	rh := handlers.RewardsHandler{Store: &db.RewardTransactionStore{DB: server.DB}, Cfg: server.Config}
 
 	server.POST("/students/login/", uh.Login)
 
@@ -37,4 +38,10 @@ func RegisterHandlers(server *Server) {
 	server.GET("/students/find/username/:username", uh.GetStudentByUsername)
 	server.PATCH("/students/update/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.UpdateStudent)
 	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.DeleteStudent)
+
+	// Reward transactions
+	server.POST("/rewards/award", rh.NewTransaction)
+	server.GET("/rewards/awards/:userid", rh.GetUserTransactions)
+	server.GET("/rewards/awards/all", rh.GetAllTransactions)
+	server.DELETE("/rewards/awards/:transaction", rh.DeleteRewardTransaction)
 }
