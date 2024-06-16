@@ -35,6 +35,7 @@ func RegisterHandlers(server *Server) {
 	server.GET("/students/all/:campus", uh.GetCampusStudents)
 	server.GET("/students/find/id/:id", uh.GetStudentByID)
 	server.GET("/students/find/admno/:admno", uh.GetStudentByAmno)
+	server.GET("/students/registered/:admno", uh.IsStudentRegistered)
 	server.GET("/students/find/username/:username", uh.GetStudentByUsername)
 	server.PATCH("/students/update/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.UpdateStudent)
 	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.DeleteStudent)

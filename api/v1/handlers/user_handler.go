@@ -111,6 +111,17 @@ func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, student)
 }
 
+func (uh *UserHandler) IsStudentRegistered(c *gin.Context) {
+	admno := c.Param("admno")
+
+	_, err := uh.Store.GetStudentByAdmno(admno)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"registered": true})
+}
+
 func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
 	username := c.Param("username")
 
