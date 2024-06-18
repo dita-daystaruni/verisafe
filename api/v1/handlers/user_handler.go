@@ -45,6 +45,16 @@ func (uh *UserHandler) Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, s)
 }
 
+func (uh *UserHandler) GetLeaderBoard(c *gin.Context) {
+	s, err := uh.Store.LeaderBoard()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, s)
+}
+
 func (uh *UserHandler) RegisterStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {

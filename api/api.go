@@ -42,6 +42,7 @@ func RegisterHandlers(server *Server) {
 
 	// Reward transactions
 	server.POST("/rewards/award", rh.NewTransaction)
+	server.GET("/rewards/leaderboard", uh.GetLeaderBoard)
 	server.GET("/rewards/awards/:userid", rh.GetUserTransactions)
 	server.GET("/rewards/awards/all", rh.GetAllTransactions)
 	server.DELETE("/rewards/awards/:transaction", rh.DeleteRewardTransaction)
