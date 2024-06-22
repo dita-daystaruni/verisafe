@@ -19,18 +19,18 @@ type UserHandler struct {
 func (uh *UserHandler) Login(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify username and password"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify admission number and password"})
 		return
 	}
 
-	s, err := uh.Store.GetStudentByUsername(student.Username)
+	s, err := uh.Store.GetStudentByAdmno(student.AdmissionNumber)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if ok, err := s.ComparePassword(student.Password); err != nil || !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Please check your username and password"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Please check your admission number and password"})
 		return
 	}
 
@@ -45,10 +45,20 @@ func (uh *UserHandler) Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, s)
 }
 
+func (uh *UserHandler) GetLeaderBoard(c *gin.Context) {
+	s, err := uh.Store.LeaderBoard()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, s)
+}
+
 func (uh *UserHandler) RegisterStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you signup using valid json"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -109,6 +119,17 @@ func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, student)
+}
+
+func (uh *UserHandler) IsStudentRegistered(c *gin.Context) {
+	admno := c.Param("admno")
+
+	_, err := uh.Store.GetStudentByAdmno(admno)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"registered": true})
 }
 
 func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
