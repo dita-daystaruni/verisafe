@@ -32,7 +32,7 @@ func (rts *RewardTransactionStore) NewRewardTransaction(rewardTransaction models
 
 	// Add the points
 	student.VibePoints += rewardTransaction.Points
-	if err := rts.DB.Save(&student).Error; err != nil {
+	if err := rts.DB.Model(&student).Update("vibe_points", student.VibePoints).Error; err != nil {
 		return nil, err
 	}
 
