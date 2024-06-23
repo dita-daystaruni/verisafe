@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/models"
@@ -16,6 +17,9 @@ type StudentStore struct {
 func (ss *StudentStore) NewStudent(student models.Student) (*models.Student, error) {
 	if err := student.VerifyDetails(); err != nil {
 		return nil, err
+	}
+	if s, _ := ss.GetStudentByUsername(student.Username); s != nil {
+		return nil, errors.New("That username is already taken please try another one")
 	}
 	student.DateCreated = time.Now()
 	student.DateUpdated = time.Now()

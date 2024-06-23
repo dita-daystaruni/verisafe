@@ -49,7 +49,7 @@ func (rh *RewardsHandler) GetUserTransactions(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, transactions)
+	c.IndentedJSON(http.StatusOK, transactions)
 }
 
 func (rh *RewardsHandler) GetAllTransactions(c *gin.Context) {

@@ -40,6 +40,7 @@ func VerifyAdmno(admno string) bool {
 
 // HashPassword hashes the password from plaintext ready for storage
 func (u *Student) HashPassword() error {
+	print(u.Password)
 	pwd := []byte(u.Password)
 
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
