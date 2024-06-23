@@ -45,6 +45,7 @@ Start the authentication service with:
 go run cmd/main.go
 ```
 
+The api documentation can be found under the docs folder
 
 ## Contributing 🤝
 

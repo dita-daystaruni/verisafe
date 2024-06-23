@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "951268e0-85b7-441a-af3d-bb0efec9bb1d",
+		"name": "Verisafe",
+		"description": "# Verisafe\n\n---\n\nAcademia's authentication and student management service\n\n---\n\n## Read the docs\n\n## Variable definition\n\n| **`Variable`** | **Definition** |\n| --- | --- |\n| `base_url` | **The base URL of the sevice use the correct one when testing** |\n| `token` | The token from the authentication service, update it evertime you login for authentication to other endpoints |\n| `admission_number` | The student's admission number in question |\n| `password` | The password of the student in question |\n\n# Getting started\n\n- Begin by setting your admission_number on the `admission_number` variable\n- Set the passord in the `password` field\n- Send a login request and enjoy the token will automatically be set if the credentials were valid  \n    \n- Enjoy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30801636"
+	},
+	"item": [
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Register Students",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"username\": \"johny\",\n    \"email\": \"john@example.com\",\n    \"password\": \"secret\",\n    \"national_id\": \"123456780\",\n    \"address\": \"50 Low Street\",\n    \"gender\": \"male\",\n    \"campus\": \"athi\",\n    \"admission_number\": \"22-0822\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/students/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"register",
+								""
+							]
+						},
+						"description": "Registers a student into the system\n\nNote it does not need authorization so you may call it without caling login"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Students",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Token",
+								"value": "{{Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/students/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"all"
+							],
+							"query": [
+								{
+									"key": "Token",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Returns a list of all students in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Students By Campus",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/all/:campus",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"all",
+								":campus"
+							],
+							"variable": [
+								{
+									"key": "campus",
+									"value": "athi"
+								}
+							]
+						},
+						"description": "Returns a list of all students by campus"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student By Admno",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/find/admno/19-1980",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"find",
+								"admno",
+								"19-1980"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/find/id/8778548b-fe29-4642-b258-cd89e4d66f78",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"find",
+								"id",
+								"8778548b-fe29-4642-b258-cd89e4d66f78"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Token",
+								"value": "{{Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"rose\"\n    //\"email\": \"rose@example.com\",\n    //\"password\": \"secret\"\n    //\"gender\": \"female\",\n    //\"campus\": \"nairobi\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/students/update/8778548b-fe29-4642-b258-cd89e4d66f78",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"update",
+								"8778548b-fe29-4642-b258-cd89e4d66f78"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/delete/1d7f89ab-8e47-4c14-9456-f173e86da661",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"delete",
+								"1d7f89ab-8e47-4c14-9456-f173e86da661"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student By Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/find/username/:username",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"find",
+								"username",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "johnny"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseToken = pm.response.headers.get(\"token\")",
+									"pm.collectionVariables.set(\"Token\", responseToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"admission_number\": \"{{admission_number}}\",\n    \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/students/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Is Student Registerd",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/students/registered/:admno",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"students",
+								"registered",
+								":admno"
+							],
+							"variable": [
+								{
+									"key": "admno",
+									"value": "{{admission_number}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "# Students\n\n---\n\nThe humble student handler\n\n## Getting started\n\n- Ensure you have your username and password set on the collection variable\n- All api endpoints are protected except the is registered and the register user endpoint\n- Please first begin by calling login to set your token then if everything goes as planned the token header will be set appropriatedly and you will be able to access the resources"
+		},
+		{
+			"name": "Rewards",
+			"item": [
+				{
+					"name": "New Reward",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"student_id\": \"8778548b-fe29-4642-b258-cd89e4d66f78\",\n    \"points\": 2,\n    \"reason\": \"App daily launch\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rewards/award",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rewards",
+								"award"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Rewards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rewards/awards/:userid",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rewards",
+								"awards",
+								":userid"
+							],
+							"variable": [
+								{
+									"key": "userid",
+									"value": "8778548b-fe29-4642-b258-cd89e4d66f78"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all reward transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rewards/awards/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rewards",
+								"awards",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reward Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rewards/awards/:transaction",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rewards",
+								"awards",
+								":transaction"
+							],
+							"variable": [
+								{
+									"key": "transaction",
+									"value": "833722c4-a6d9-48ad-8585-67a1fadf41c8"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rewards/leaderboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rewards",
+								"leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "base_url",
+			"value": "http://54.89.208.172:8000",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "Token",
+			"value": ""
+		},
+		{
+			"key": "admission_number",
+			"value": "22-0822",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "secret",
+			"type": "string"
+		}
+	]
+}
