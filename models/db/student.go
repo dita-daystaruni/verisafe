@@ -83,23 +83,17 @@ func (ss *StudentStore) GetAllStudents() (*[]models.Student, error) {
 
 // Updates a student's details in the database
 func (ss *StudentStore) UpdateStudentDetails(student models.Student) (bool, error) {
-	// stored := models.Student{
-	//
-	// 	Username:    student.Username,
-	// 	FirstName:   student.FirstName,
-	// 	LastName:    student.LastName,
-	// 	Email:       student.Email,
-	// 	Password:    student.Password,
-	// 	Campus:      student.Campus,
-	// 	DateOfBirth: student.DateOfBirth,
-	// 	Active:      student.Active,
-	// 	DateUpdated: time.Now(),
-	// }
+	stored := models.Student{}
+	stored.Active = student.Active
+	stored.Username = student.Username
+	stored.Password = student.Password
+	stored.DateUpdated = time.Now()
+	stored.BeforeUpdate(ss.DB)
 
-	// err := ss.DB.Debug().Model(&models.Student{}).Where("id = ?", student.ID).Updates(&stored).Error
-	// if err != nil {
-	// 	return false, err
-	// }
+	err := ss.DB.Debug().Model(&models.Student{}).Where("id = ?", student.ID).Updates(&stored).Error
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
