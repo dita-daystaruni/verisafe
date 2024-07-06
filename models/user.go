@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -77,7 +78,7 @@ func (u *User) Validate() error {
 		return errors.New("Please specify your address")
 	}
 
-	if len(u.Email) < 5 {
+	if !isValidEmail(u.Email) {
 		return errors.New("Please provide a valid email address")
 	}
 
@@ -89,4 +90,12 @@ func (u *User) Validate() error {
 		return errors.New("Please specify your gender to be either male or female")
 	}
 	return nil
+}
+
+func isValidEmail(email string) bool {
+	// Regex for simple email validation (not fully compliant with RFC 5322)
+	// This regex checks for basic format "user@example.com"
+	// For production, consider using a more comprehensive regex or email validation library
+	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	return regexp.MustCompile(regex).MatchString(email)
 }
