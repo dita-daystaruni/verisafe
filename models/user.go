@@ -1,0 +1,92 @@
+package models
+
+import (
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+type User struct {
+	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Username    string    `gorm:"uniqueIndex;not null" json:"username"`
+	FirstName   string    `json:"first_name"`
+	LastName    string    `json:"last_name"`
+	Gender      string    `json:"gender"`
+	Address     string    `json:"address"`
+	NationalID  string    `gorm:"uniqueIndex" json:"national_id"`
+	Email       string    `gorm:"uniqueIndex" json:"email"`
+	DateOfBirth time.Time `json:"date_of_birth"`
+	Active      bool      `gorm:"default:true" json:"active"`
+	Password    string    `json:"password"`
+	DateCreated time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_created"`
+	DateUpdated time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_updated"`
+}
+
+// Hooks for before saving
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	return u.HashPassword()
+}
+
+func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
+	return u.HashPassword()
+}
+
+// HashPassword hashes the password from plaintext ready for storage
+func (u *User) HashPassword() error {
+	print(u.Password)
+	pwd := []byte(u.Password)
+
+	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hash)
+
+	return nil
+}
+
+// The ComparePassword function compares the hash if it maches with
+// the plaintext password
+func (u *User) ComparePassword(password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// Validates the user's information ensuring that it meets
+// some certain non-empty criteria
+func (u *User) Validate() error {
+	// Username
+	if len(u.Username) < 3 {
+		return errors.New("Please try a username with more than 3 characters")
+	}
+
+	// Names
+	if len(u.FirstName) < 3 || len(u.LastName) < 3 {
+		return errors.New("Please provide your valid names")
+	}
+
+	if u.Address == "" {
+		return errors.New("Please specify your address")
+	}
+
+	if len(u.Email) < 5 {
+		return errors.New("Please provide a valid email address")
+	}
+
+	if len(u.Password) < 6 {
+		return errors.New("Please provide a valid password")
+	}
+
+	if u.Gender != "male" && u.Gender != "female" {
+		return errors.New("Please specify your gender to be either male or female")
+	}
+	return nil
+}
