@@ -60,8 +60,20 @@ func (us *UserStore) GetAllUsers() (*[]models.User, error) {
 	return &users, nil
 }
 
-func (us *UserStore) UpdateUser(user models.User) (*[]models.User, error) {
-	return nil, nil
+func (us *UserStore) UpdateUser(user models.User) (*models.User, error) {
+	stored := models.User{}
+	stored.FirstName = user.FirstName
+	stored.LastName = user.LastName
+	stored.Active = user.Active
+	stored.Username = user.Username
+	stored.Password = user.Password
+
+	err := us.DB.Debug().Model(&models.User{}).Where("id = ?", user.ID).Updates(&stored).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &stored, nil
 }
 
 // Deletes a user specified by [id] from the database

@@ -33,6 +33,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
+	u.DateUpdated = time.Now()
 	return u.HashPassword()
 }
 

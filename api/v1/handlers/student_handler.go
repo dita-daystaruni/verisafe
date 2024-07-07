@@ -11,12 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserHandler struct {
+type StudentHandler struct {
 	Store *db.StudentStore
 	Cfg   *configs.Config
 }
 
-func (uh *UserHandler) Login(c *gin.Context) {
+func (uh *StudentHandler) Login(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify admission number and password"})
@@ -45,7 +45,7 @@ func (uh *UserHandler) Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, s)
 }
 
-func (uh *UserHandler) GetLeaderBoard(c *gin.Context) {
+func (uh *StudentHandler) GetLeaderBoard(c *gin.Context) {
 	s, err := uh.Store.LeaderBoard()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -55,7 +55,7 @@ func (uh *UserHandler) GetLeaderBoard(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, s)
 }
 
-func (uh *UserHandler) RegisterStudent(c *gin.Context) {
+func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,7 +71,7 @@ func (uh *UserHandler) RegisterStudent(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, s)
 }
 
-func (uh *UserHandler) GetAllStudents(c *gin.Context) {
+func (uh *StudentHandler) GetAllStudents(c *gin.Context) {
 	students, err := uh.Store.GetAllStudents()
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -80,7 +80,7 @@ func (uh *UserHandler) GetAllStudents(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, students)
 }
 
-func (uh *UserHandler) GetCampusStudents(c *gin.Context) {
+func (uh *StudentHandler) GetCampusStudents(c *gin.Context) {
 	campus := c.Param("campus")
 	if campus != "athi" && campus != "nairobi" {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you use nairobi or athi"})
@@ -94,7 +94,7 @@ func (uh *UserHandler) GetCampusStudents(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, students)
 }
 
-func (uh *UserHandler) GetStudentByID(c *gin.Context) {
+func (uh *StudentHandler) GetStudentByID(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
@@ -110,7 +110,7 @@ func (uh *UserHandler) GetStudentByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, student)
 }
 
-func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
+func (uh *StudentHandler) GetStudentByAmno(c *gin.Context) {
 	admno := c.Param("admno")
 
 	student, err := uh.Store.GetStudentByAdmno(admno)
@@ -121,7 +121,7 @@ func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, student)
 }
 
-func (uh *UserHandler) IsStudentRegistered(c *gin.Context) {
+func (uh *StudentHandler) IsStudentRegistered(c *gin.Context) {
 	admno := c.Param("admno")
 
 	_, err := uh.Store.GetStudentByAdmno(admno)
@@ -132,7 +132,7 @@ func (uh *UserHandler) IsStudentRegistered(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"registered": true})
 }
 
-func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
+func (uh *StudentHandler) GetStudentByUsername(c *gin.Context) {
 	username := c.Param("username")
 
 	student, err := uh.Store.GetStudentByUsername(username)
@@ -143,7 +143,7 @@ func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, student)
 }
 
-func (uh *UserHandler) UpdateStudent(c *gin.Context) {
+func (uh *StudentHandler) UpdateStudent(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
@@ -167,7 +167,7 @@ func (uh *UserHandler) UpdateStudent(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 
-func (uh *UserHandler) DeleteStudent(c *gin.Context) {
+func (uh *StudentHandler) DeleteStudent(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
