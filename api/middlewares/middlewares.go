@@ -39,6 +39,9 @@ func (mc *MiddleWareConfig) RequireValidToken(c *gin.Context) {
 	c.Next()
 }
 
+func (mc *MiddleWareConfig) RequireAdmin(c *gin.Context) {
+}
+
 func (mc *MiddleWareConfig) RequireSameUserOrAdmin(c *gin.Context) {
 	tokenString := c.GetHeader("Token")
 	token, err := auth.VerifyToken(tokenString, mc.Cfg)

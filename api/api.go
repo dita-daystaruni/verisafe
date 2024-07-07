@@ -23,13 +23,24 @@ func RegisterHandlers(server *Server) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	// Student CRUD operations
+	uh := handlers.UserHandler{
+		Store:        &db.UserStore{DB: server.DB},
+		Cfg:          server.Config,
+		StudentStore: &db.StudentStore{DB: server.DB},
+	}
 	sh := handlers.StudentHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
 	mc := middlewares.MiddleWareConfig{Cfg: server.Config}
 	rh := handlers.RewardsHandler{Store: &db.RewardTransactionStore{DB: server.DB}, Cfg: server.Config}
 
-	server.POST("/students/login/", sh.Login)
+	// User handler
+	server.POST("/users/login/", uh.Login)
+	server.POST("users/register/", uh.RegisterUser)
+	server.GET("users/find/:id", uh.GetUserByID)
+	server.GET("users/find/username/:username", uh.GetUserByUsername)
+	server.GET("users/all", uh.GetAllUsers)
+	server.DELETE("users/delete/:id", uh.DeleteUserByID)
 
+	// Student handlers
 	server.POST("/students/register/", sh.RegisterStudent)
 	server.GET("/students/all", mc.RequireValidToken, sh.GetAllStudents)
 	server.GET("/students/all/:campus", sh.GetCampusStudents)
