@@ -34,6 +34,7 @@ func RegisterHandlers(server *Server) {
 
 	// User handler
 	server.POST("/users/login/", uh.Login)
+	server.GET("/users/logout/", uh.Logout)
 	server.POST("users/register/", mc.RequireAdmin, uh.RegisterUser)
 	server.GET("users/find/:id", mc.RequireAdmin, uh.GetUserByID)
 	server.GET("users/find/username/:username", mc.RequireAdmin, uh.GetUserByUsername)

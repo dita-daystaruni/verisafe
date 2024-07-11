@@ -90,6 +90,14 @@ func (uh *UserHandler) Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, user)
 }
 
+func (uh *UserHandler) Logout(c *gin.Context) {
+	c.Header("Token", "")
+	c.IndentedJSON(http.StatusAccepted,
+		gin.H{"message": "Goodbye, we must now say. Meet again, we will."},
+	)
+
+}
+
 func (uh *UserHandler) RegisterUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
