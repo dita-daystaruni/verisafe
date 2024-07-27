@@ -9,7 +9,7 @@ import (
 
 type Token struct {
 	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
-	User        uuid.UUID `gorm:"type:uuid;uniqueIndex" json:"user"`
+	User        uuid.UUID `gorm:"type:uuid" json:"user"`
 	TokenString string    `gorm:"unique;not null" json:"token_string"`
 	DateCreated time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_created"`
 }
@@ -19,9 +19,10 @@ type Token struct {
 func (t *Token) BeforeCreate(tx *gorm.DB) (err error) {
 	t.DateCreated = time.Now()
 
-	// Delete the user's preexisting token
-	if err := tx.Delete(&Token{}, t.User).Error; err != nil {
+	// Delete all existing tokens for the same user
+	if err := tx.Unscoped().Where("tokens.user = ?", t.User).Delete(&Token{}).Error; err != nil {
 		return err
 	}
+
 	return nil
 }

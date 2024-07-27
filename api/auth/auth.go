@@ -6,12 +6,14 @@ import (
 
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
+	"github.com/dita-daystaruni/verisafe/models/db"
 	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 )
 
 // Generates a jwt token that can be used to authenticate
 // a user
-func GenerateToken(user *models.User, isAdmin bool, cfg *configs.Config) (string, error) {
+func GenerateToken(user *models.User, isAdmin bool, cfg *configs.Config, con *gorm.DB) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":    user.ID,
 		"username":   user.Username,
@@ -28,7 +30,14 @@ func GenerateToken(user *models.User, isAdmin bool, cfg *configs.Config) (string
 		return "", err
 	}
 
-	return tokenString, nil
+	ts := db.TokenStore{DB: con}
+
+	token, err := ts.RegisterToken(models.Token{User: user.ID, TokenString: tokenString})
+	if err != nil {
+		return "", err
+	}
+
+	return token.TokenString, nil
 }
 
 // Verifies a user's token

@@ -47,7 +47,7 @@ func (uh *UserHandler) Login(c *gin.Context) {
 			return
 		}
 
-		token, err := auth.GenerateToken(&stud.User, false, uh.Cfg)
+		token, err := auth.GenerateToken(&stud.User, false, uh.Cfg, uh.Store.DB)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError,
 				gin.H{"error": "Troubled, the server is. Fix it, we must."},
@@ -77,7 +77,7 @@ func (uh *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := auth.GenerateToken(user, true, uh.Cfg)
+	token, err := auth.GenerateToken(user, true, uh.Cfg, uh.Store.DB)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError,
 			gin.H{"error": "Troubled, the server is. Fix it, we must."},
