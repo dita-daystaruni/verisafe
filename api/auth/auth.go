@@ -5,18 +5,21 @@ import (
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 )
 
 // Generates a jwt token that can be used to authenticate
 // a user
-func GenerateToken(id uuid.UUID, username string, isAdmin bool, cfg *configs.Config) (string, error) {
+func GenerateToken(user *models.User, isAdmin bool, cfg *configs.Config) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":  id.String(),
-		"username": username,
-		"is_admin": isAdmin,
-		"exp":      time.Now().Add(time.Duration(cfg.JWTConfig.ExpireDelta) * time.Minute).Unix(),
+		"user_id":    user.ID,
+		"username":   user.Username,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+		"email":      user.Email,
+		"is_admin":   isAdmin,
+		"exp":        time.Now().Add(time.Duration(cfg.JWTConfig.ExpireDelta) * time.Minute).Unix(),
 	})
 
 	// Sign with the API secret

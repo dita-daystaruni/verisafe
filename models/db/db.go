@@ -6,5 +6,6 @@ import (
 )
 
 func AutoMigrate(DB *gorm.DB) {
-	DB.AutoMigrate(&models.Student{}, &models.RewardTransaction{}, &models.User{})
+	DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
+	DB.AutoMigrate(&models.Student{}, &models.RewardTransaction{}, &models.User{}, &models.Token{})
 }

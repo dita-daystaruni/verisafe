@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/dita-daystaruni/verisafe/api/auth"
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/dita-daystaruni/verisafe/models/db"
@@ -14,35 +13,6 @@ import (
 type StudentHandler struct {
 	Store *db.StudentStore
 	Cfg   *configs.Config
-}
-
-func (uh *StudentHandler) Login(c *gin.Context) {
-	var student models.Student
-	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify admission number and password"})
-		return
-	}
-
-	s, err := uh.Store.GetStudentByAdmno(student.AdmissionNumber)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if ok, err := s.ComparePassword(student.Password); err != nil || !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Please check your admission number and password"})
-		return
-	}
-
-	token, err := auth.GenerateToken(s.ID, s.Username, false, uh.Cfg)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.Header("Token", token)
-
-	c.IndentedJSON(http.StatusOK, s)
 }
 
 func (uh *StudentHandler) GetLeaderBoard(c *gin.Context) {
@@ -98,7 +68,7 @@ func (uh *StudentHandler) GetStudentByID(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Please specify a valid ID"})
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Provide a valid ID you must"})
 		return
 	}
 
