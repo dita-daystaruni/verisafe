@@ -12,174 +12,186 @@ import (
 )
 
 type UserHandler struct {
-	Store *db.StudentStore
-	Cfg   *configs.Config
+	StudentStore *db.StudentStore
+	Store        *db.UserStore
+	Cfg          *configs.Config
+}
+
+type LoginCreds struct {
+	Username string `json:"username"`
+	Admno    string `json:"admission_number"`
+	Password string `json:"password"`
 }
 
 func (uh *UserHandler) Login(c *gin.Context) {
-	var student models.Student
-	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you specify admission number and password"})
+	var loginCreds LoginCreds
+
+	if err := c.ShouldBindJSON(&loginCreds); err != nil {
+		c.IndentedJSON(http.StatusBadRequest,
+			gin.H{"error": "Invalid, the request body is. Provide data, you must."},
+		)
 		return
 	}
 
-	s, err := uh.Store.GetStudentByAdmno(student.AdmissionNumber)
+	// Check if its a student login
+	if loginCreds.Admno != "" {
+		stud, err := uh.StudentStore.GetStudentByAdmno(loginCreds.Admno)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if ok, err := stud.ComparePassword(loginCreds.Password); err != nil || !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized,
+				gin.H{"error": "Please check your admission number and password"},
+			)
+			return
+		}
+
+		token, err := auth.GenerateToken(&stud.User, false, uh.Cfg, uh.Store.DB)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError,
+				gin.H{"error": "Troubled, the server is. Fix it, we must."},
+			)
+			return
+		}
+
+		c.Header("Token", token)
+
+		c.IndentedJSON(http.StatusOK, stud)
+		return
+	}
+
+	// Otherwise its an admin login
+	user, err := uh.Store.GetUserByUsername(loginCreds.Username)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			gin.H{"error": "The Force, not strong with this one, it is - No such user"},
+		)
+		return
+	}
+	if ok, err := user.ComparePassword(loginCreds.Password); err != nil || !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{"error": "Check username and password, you must"},
+		)
 		return
 	}
 
-	if ok, err := s.ComparePassword(student.Password); err != nil || !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Please check your admission number and password"})
-		return
-	}
-
-	token, err := auth.GenerateToken(s.ID, s.Username, false, uh.Cfg)
+	token, err := auth.GenerateToken(user, true, uh.Cfg, uh.Store.DB)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{"error": "Troubled, the server is. Fix it, we must."},
+		)
 		return
 	}
 
 	c.Header("Token", token)
 
-	c.IndentedJSON(http.StatusOK, s)
+	c.IndentedJSON(http.StatusOK, user)
 }
 
-func (uh *UserHandler) GetLeaderBoard(c *gin.Context) {
-	s, err := uh.Store.LeaderBoard()
+func (uh *UserHandler) Logout(c *gin.Context) {
+	c.Header("Token", "")
+	c.IndentedJSON(http.StatusAccepted,
+		gin.H{"message": "Goodbye, we must now say. Meet again, we will."},
+	)
+
+}
+
+func (uh *UserHandler) RegisterUser(c *gin.Context) {
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.IndentedJSON(http.StatusBadRequest,
+			gin.H{"error": "Invalid, the request body is. Provide data, you must."},
+		)
+		return
+	}
+
+	u, err := uh.Store.RegisterUser(user)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusBadRequest,
+			gin.H{
+				"error":   "Error, young padawan. Failed to create user, we have.",
+				"details": err.Error(),
+			},
+		)
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, s)
+	c.IndentedJSON(http.StatusCreated, u)
 }
 
-func (uh *UserHandler) RegisterStudent(c *gin.Context) {
-	var student models.Student
-	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	s, err := uh.Store.NewStudent(student)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusCreated, s)
-}
-
-func (uh *UserHandler) GetAllStudents(c *gin.Context) {
-	students, err := uh.Store.GetAllStudents()
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, students)
-}
-
-func (uh *UserHandler) GetCampusStudents(c *gin.Context) {
-	campus := c.Param("campus")
-	if campus != "athi" && campus != "nairobi" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you use nairobi or athi"})
-		return
-	}
-	students, err := uh.Store.GetStudentsByCampus(campus)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, students)
-}
-
-func (uh *UserHandler) GetStudentByID(c *gin.Context) {
+func (uh *UserHandler) GetUserByID(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Please specify a valid ID"})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{"error": "Failed to parse, the ID has. Understand it, we cannot."},
+		)
 		return
 	}
-
-	student, err := uh.Store.GetStudentByID(id)
+	user, err := uh.Store.GetUserByID(id)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{
+				"error":   "Find user, we could not. The Force, not strong with this search.",
+				"details": err.Error(),
+			},
+		)
 		return
 	}
-	c.IndentedJSON(http.StatusOK, student)
+	c.IndentedJSON(http.StatusOK, user)
 }
 
-func (uh *UserHandler) GetStudentByAmno(c *gin.Context) {
-	admno := c.Param("admno")
-
-	student, err := uh.Store.GetStudentByAdmno(admno)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, student)
-}
-
-func (uh *UserHandler) IsStudentRegistered(c *gin.Context) {
-	admno := c.Param("admno")
-
-	_, err := uh.Store.GetStudentByAdmno(admno)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"registered": true})
-}
-
-func (uh *UserHandler) GetStudentByUsername(c *gin.Context) {
+func (uh *UserHandler) GetUserByUsername(c *gin.Context) {
 	username := c.Param("username")
-
-	student, err := uh.Store.GetStudentByUsername(username)
+	user, err := uh.Store.GetUserByUsername(username)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{
+				"error":   "Find user, we could not. The Force, not strong with this search.",
+				"details": err.Error(),
+			},
+		)
 		return
 	}
-	c.IndentedJSON(http.StatusOK, student)
+	c.IndentedJSON(http.StatusOK, user)
 }
 
-func (uh *UserHandler) UpdateStudent(c *gin.Context) {
+func (uh *UserHandler) GetAllUsers(c *gin.Context) {
+	users, err := uh.Store.GetAllUsers()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{
+				"error":   "Failed to find, multiple users we expected. The Force, not strong with this search.",
+				"details": err.Error(),
+			},
+		)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, users)
+
+}
+
+func (uh *UserHandler) DeleteUserByID(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Please specify a valid ID"})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{"error": "Failed to parse, the ID has. Understand it, we cannot."},
+		)
 		return
 	}
-
-	var student models.Student
-	student.ID = id
-	if err := c.ShouldBindJSON(&student); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please ensure you signup using valid json"})
-		return
-	}
-
-	_, err = uh.Store.UpdateStudentDetails(student)
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
-}
-
-func (uh *UserHandler) DeleteStudent(c *gin.Context) {
-	rawid := c.Param("id")
-	id, err := uuid.Parse(rawid)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Please specify a valid ID"})
-		return
-	}
-
 	err = uh.Store.DeleteStudent(id)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{
+				"error":   "Failed to delete, the user we have. The Force, not permit this action.",
+				"details": err.Error(),
+			},
+		)
 		return
 	}
-
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student deleted successfully"})
+	c.Status(http.StatusMovedPermanently)
 }

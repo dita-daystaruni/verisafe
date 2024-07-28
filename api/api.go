@@ -23,27 +23,39 @@ func RegisterHandlers(server *Server) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	// Student CRUD operations
-	uh := handlers.UserHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
-	mc := middlewares.MiddleWareConfig{Cfg: server.Config}
+	uh := handlers.UserHandler{
+		Store:        &db.UserStore{DB: server.DB},
+		Cfg:          server.Config,
+		StudentStore: &db.StudentStore{DB: server.DB},
+	}
+	sh := handlers.StudentHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
+	mc := middlewares.MiddleWareConfig{Cfg: server.Config, DB: server.DB}
 	rh := handlers.RewardsHandler{Store: &db.RewardTransactionStore{DB: server.DB}, Cfg: server.Config}
 
-	server.POST("/students/login/", uh.Login)
+	// User handler
+	server.POST("/users/login/", uh.Login)
+	server.GET("/users/logout/", mc.DeleteToken, uh.Logout)
+	server.POST("users/register/", mc.RequireAdmin, uh.RegisterUser)
+	server.GET("users/find/:id", mc.RequireAdmin, uh.GetUserByID)
+	server.GET("users/find/username/:username", mc.RequireAdmin, uh.GetUserByUsername)
+	server.GET("users/all", mc.RequireAdmin, uh.GetAllUsers)
+	server.DELETE("users/delete/:id", mc.RequireAdmin, uh.DeleteUserByID)
 
-	server.POST("/students/register/", uh.RegisterStudent)
-	server.GET("/students/all", mc.RequireValidToken, uh.GetAllStudents)
-	server.GET("/students/all/:campus", uh.GetCampusStudents)
-	server.GET("/students/find/id/:id", uh.GetStudentByID)
-	server.GET("/students/find/admno/:admno", uh.GetStudentByAmno)
-	server.GET("/students/registered/:admno", uh.IsStudentRegistered)
-	server.GET("/students/find/username/:username", uh.GetStudentByUsername)
-	server.PATCH("/students/update/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.UpdateStudent)
-	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, uh.DeleteStudent)
+	// Student handlers
+	server.POST("/students/register/", sh.RegisterStudent)
+	server.GET("/students/all", mc.RequireValidToken, mc.RequireAdmin, sh.GetAllStudents)
+	server.GET("/students/all/:campus", mc.RequireAdmin, sh.GetCampusStudents)
+	server.GET("/students/find/id/:id", mc.RequireSameUserOrAdmin, sh.GetStudentByID)
+	server.GET("/students/find/admno/:admno", mc.RequireAdmin, sh.GetStudentByAmno)
+	server.GET("/students/registered/:admno", sh.IsStudentRegistered)
+	server.GET("/students/find/username/:username", mc.RequireSameUserOrAdmin, sh.GetStudentByUsername)
+	server.PATCH("/students/update/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, sh.UpdateStudent)
+	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, sh.DeleteStudent)
 
 	// Reward transactions
-	server.POST("/rewards/award", rh.NewTransaction)
-	server.GET("/rewards/leaderboard", uh.GetLeaderBoard)
-	server.GET("/rewards/awards/:userid", rh.GetUserTransactions)
-	server.GET("/rewards/awards/all", rh.GetAllTransactions)
-	server.DELETE("/rewards/awards/:transaction", rh.DeleteRewardTransaction)
+	server.POST("/rewards/award", mc.RequireAdmin, rh.NewTransaction)
+	server.GET("/rewards/leaderboard", mc.RequireValidToken, sh.GetLeaderBoard)
+	server.GET("/rewards/awards/:userid", mc.RequireSameUserOrAdmin, rh.GetUserTransactions)
+	server.GET("/rewards/awards/all", mc.RequireValidToken, rh.GetAllTransactions)
+	server.DELETE("/rewards/awards/:transaction", mc.RequireValidToken, rh.DeleteRewardTransaction)
 }
