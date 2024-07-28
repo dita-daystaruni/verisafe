@@ -41,8 +41,16 @@ func GenerateToken(user *models.User, isAdmin bool, cfg *configs.Config, con *go
 }
 
 // Verifies a user's token
-func VerifyToken(tokenString string, cfg *configs.Config) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifyToken(tokenString string, cfg *configs.Config, con *gorm.DB) (*jwt.Token, error) {
+
+	ts := db.TokenStore{DB: con}
+
+	t, err := ts.RetrieveToken(tokenString)
+	if err != nil {
+		return nil, errors.New("This token, authentic it is not. Find another, you must.")
+	}
+
+	token, err := jwt.Parse(t.TokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(cfg.JWTConfig.ApiSecret), nil
 	})
 	if err != nil {
@@ -50,7 +58,7 @@ func VerifyToken(tokenString string, cfg *configs.Config) (*jwt.Token, error) {
 	}
 
 	if !token.Valid {
-		return nil, errors.New("You provided an invalid token please relogin to continue")
+		return nil, errors.New("Provided an invalid token you did relogin you must")
 	}
 
 	return token, nil

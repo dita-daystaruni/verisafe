@@ -8,15 +8,17 @@ import (
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 )
 
 type MiddleWareConfig struct {
 	Cfg *configs.Config
+	DB  *gorm.DB
 }
 
 func (mc *MiddleWareConfig) RequireValidToken(c *gin.Context) {
 	tokenString := c.GetHeader("Token")
-	token, err := auth.VerifyToken(tokenString, mc.Cfg)
+	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
 			gin.H{"error": "Invalid token, you have. Login again to continue, you must."})
@@ -41,7 +43,7 @@ func (mc *MiddleWareConfig) RequireValidToken(c *gin.Context) {
 
 func (mc *MiddleWareConfig) RequireAdmin(c *gin.Context) {
 	tokenString := c.GetHeader("Token")
-	token, err := auth.VerifyToken(tokenString, mc.Cfg)
+	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
 			gin.H{"error": "Invalid token, you have. Login again to continue, you must."})
@@ -68,7 +70,7 @@ func (mc *MiddleWareConfig) RequireAdmin(c *gin.Context) {
 
 func (mc *MiddleWareConfig) RequireSameUserOrAdmin(c *gin.Context) {
 	tokenString := c.GetHeader("Token")
-	token, err := auth.VerifyToken(tokenString, mc.Cfg)
+	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
 			gin.H{"error": "Invalid token, you have. Login again to continue, you must."})

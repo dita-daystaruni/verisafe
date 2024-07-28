@@ -29,7 +29,7 @@ func RegisterHandlers(server *Server) {
 		StudentStore: &db.StudentStore{DB: server.DB},
 	}
 	sh := handlers.StudentHandler{Store: &db.StudentStore{DB: server.DB}, Cfg: server.Config}
-	mc := middlewares.MiddleWareConfig{Cfg: server.Config}
+	mc := middlewares.MiddleWareConfig{Cfg: server.Config, DB: server.DB}
 	rh := handlers.RewardsHandler{Store: &db.RewardTransactionStore{DB: server.DB}, Cfg: server.Config}
 
 	// User handler
