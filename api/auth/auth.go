@@ -63,3 +63,14 @@ func VerifyToken(tokenString string, cfg *configs.Config, con *gorm.DB) (*jwt.To
 
 	return token, nil
 }
+
+func DeleteToken(tokenString string, con *gorm.DB) error {
+	ts := db.TokenStore{DB: con}
+
+	err := ts.DeleteToken(tokenString)
+	if err != nil {
+		return errors.New("Delete the token, failed it has. Retry the attempt, you must.")
+	}
+
+	return nil
+}

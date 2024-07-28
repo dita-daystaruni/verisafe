@@ -98,3 +98,15 @@ func (mc *MiddleWareConfig) RequireSameUserOrAdmin(c *gin.Context) {
 	c.AbortWithStatusJSON(http.StatusUnauthorized,
 		gin.H{"error": "Denied, access is. Strong permissions, you lack."})
 }
+
+func (mc *MiddleWareConfig) DeleteToken(c *gin.Context) {
+	tokenString := c.GetHeader("Token")
+
+	err := auth.DeleteToken(tokenString, mc.DB)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{"error": err.Error()})
+		return
+	}
+	c.Next()
+}

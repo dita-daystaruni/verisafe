@@ -30,9 +30,9 @@ func (ts *TokenStore) RetrieveToken(tokenString string) (*models.Token, error) {
 }
 
 // Deletes a token specified by tokenString
-func (ts *TokenStore) DeleteToken(tokenID uuid.UUID) error {
+func (ts *TokenStore) DeleteToken(tokenString string) error {
 
-	err := ts.DB.Delete(&models.Token{}, tokenID).Error
+	err := ts.DB.Unscoped().Where("token_string = ?", tokenString).Delete(&models.Token{}).Error
 	if err != nil {
 		return err
 	}
