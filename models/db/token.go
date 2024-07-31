@@ -21,7 +21,6 @@ func (ts *TokenStore) RegisterToken(token models.Token) (*models.Token, error) {
 // Retrieves a token specified by [tokenString] from the databse
 func (ts *TokenStore) RetrieveToken(tokenString string) (*models.Token, error) {
 	var token models.Token
-
 	err := ts.DB.Where("token_string = ?", tokenString).First(&token).Error
 	if err != nil {
 		return nil, err
@@ -32,7 +31,7 @@ func (ts *TokenStore) RetrieveToken(tokenString string) (*models.Token, error) {
 // Deletes a token specified by tokenString
 func (ts *TokenStore) DeleteToken(tokenString string) error {
 
-	err := ts.DB.Unscoped().Where("token_string = ?", tokenString).Delete(&models.Token{}).Error
+	err := ts.DB.Unscoped().Debug().Where("token_string = ?", tokenString).Delete(&models.Token{}).Error
 	if err != nil {
 		return err
 	}

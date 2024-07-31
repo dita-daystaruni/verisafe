@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/models"
@@ -116,4 +117,18 @@ func (ss *StudentStore) LeaderBoard() (*[]models.Student, error) {
 	}
 
 	return &students, nil
+}
+
+func (ss *StudentStore) UpdateProfilePicture(student models.Student, filename string, host string) (*models.Student, error) {
+
+	stored := student
+	stored.Password = ""
+	stored.ProfileURL = host + "/" + "uploads/profiles/" + strings.ReplaceAll(student.ID.String()+filename, "/", "-")
+	err := ss.DB.Debug().Model(&models.Student{}).Where("id = ?", stored.ID).Update("profile_url", stored.ProfileURL).First(&stored).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &stored, nil
+
 }

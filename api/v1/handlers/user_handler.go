@@ -174,6 +174,50 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) {
 
 }
 
+func (uh *UserHandler) UploadProfilePicture(c *gin.Context) {
+
+	// Parse the user ID
+	rawID := c.Param("id")
+	id, err := uuid.Parse(rawID)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{"error": "Failed to parse, the ID has. Understand it, we cannot."},
+		)
+		return
+	}
+
+	// Attempt to find student specified by ID
+	user, err := uh.StudentStore.GetStudentByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError,
+			gin.H{
+				"error":   "Find student, we could not. The Force, not strong with this search.",
+				"details": err.Error(),
+			},
+		)
+		return
+	}
+
+	file, err := c.FormFile("profile")
+	if err != nil {
+		c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+			"error":   "Failed to handle uploaded file we have try again with a picture you must",
+			"details": err.Error(),
+		})
+	}
+
+	c.SaveUploadedFile(file, "uploads/profiles/"+user.ID.String()+file.Filename)
+	user, err = uh.StudentStore.UpdateProfilePicture(*user, file.Filename, "http://"+c.Request.Host)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+			"error":   "Failed to save uploaded file we have try again with a picture you must",
+			"details": err.Error(),
+		})
+	}
+
+	c.IndentedJSON(http.StatusOK, user)
+}
+
 func (uh *UserHandler) DeleteUserByID(c *gin.Context) {
 	rawid := c.Param("id")
 	id, err := uuid.Parse(rawid)

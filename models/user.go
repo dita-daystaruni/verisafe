@@ -17,6 +17,7 @@ type User struct {
 	LastName    string    `json:"last_name"`
 	Gender      string    `json:"gender"`
 	Address     string    `json:"address"`
+	ProfileURL  string    `json:"profile_url"`
 	NationalID  string    `gorm:"uniqueIndex" json:"national_id"`
 	Email       string    `gorm:"uniqueIndex" json:"email"`
 	DateOfBirth time.Time `json:"date_of_birth"`

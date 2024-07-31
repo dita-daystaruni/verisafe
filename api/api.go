@@ -32,14 +32,17 @@ func RegisterHandlers(server *Server) {
 	mc := middlewares.MiddleWareConfig{Cfg: server.Config, DB: server.DB}
 	rh := handlers.RewardsHandler{Store: &db.RewardTransactionStore{DB: server.DB}, Cfg: server.Config}
 
+	server.Static("/uploads", "./uploads")
+
 	// User handler
 	server.POST("/users/login/", uh.Login)
-	server.GET("/users/logout/", mc.DeleteToken, uh.Logout)
+	server.GET("/users/logout", mc.DeleteToken, uh.Logout)
 	server.POST("users/register/", mc.RequireAdmin, uh.RegisterUser)
 	server.GET("users/find/:id", mc.RequireAdmin, uh.GetUserByID)
 	server.GET("users/find/username/:username", mc.RequireAdmin, uh.GetUserByUsername)
 	server.GET("users/all", mc.RequireAdmin, uh.GetAllUsers)
 	server.DELETE("users/delete/:id", mc.RequireAdmin, uh.DeleteUserByID)
+	server.PATCH("users/profile/upload/:id", mc.RequireSameUserOrAdmin, uh.UploadProfilePicture)
 
 	// Student handlers
 	server.POST("/students/register/", sh.RegisterStudent)
@@ -49,7 +52,7 @@ func RegisterHandlers(server *Server) {
 	server.GET("/students/find/admno/:admno", mc.RequireAdmin, sh.GetStudentByAmno)
 	server.GET("/students/registered/:admno", sh.IsStudentRegistered)
 	server.GET("/students/find/username/:username", mc.RequireSameUserOrAdmin, sh.GetStudentByUsername)
-	server.PATCH("/students/update/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, sh.UpdateStudent)
+	server.PATCH("/students/update/:id", mc.RequireSameUserOrAdmin, sh.UpdateStudent)
 	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, sh.DeleteStudent)
 
 	// Reward transactions
