@@ -10,7 +10,6 @@ type Student struct {
 	User                                   // Composition
 	AdmissionNumber    string              `gorm:"uniqueIndex" json:"admission_number"`
 	Campus             string              `json:"campus"`
-	ProfileURL         string              `json:"profile_url"`
 	VibePoints         int                 `gorm:"default:0" json:"vibe_points"`
 	PointsTransactions []RewardTransaction `json:"point_transactions"`
 	DateCreated        time.Time           `gorm:"default:CURRENT_TIMESTAMP" json:"date_created"`
