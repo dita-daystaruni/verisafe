@@ -2,9 +2,7 @@ version: '3.1'
 
 services:
   verisafe:
-    build:
-      context: .  # Use the current directory as the build context
-      dockerfile: Dockerfile  # Path to the Dockerfile for the verisafe service
+    image: eiidoubleyuwes/verisafe:latest  # Pulls the image from Docker Hub
     ports:
       - "${VERISAFE_PORT}:${VERISAFE_PORT}"
     depends_on:
@@ -25,8 +23,11 @@ services:
     networks:
       - app_network
     volumes:
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  # Mount initialization scripts
+      - postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
 
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  postgres_data:  # Define the volume
