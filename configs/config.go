@@ -29,6 +29,10 @@ type Config struct {
 		DatabaseName     string `envconfig:"DB_NAME"`
 		DatabasePort     int    `envconfig:"DB_PORT"`
 	}
+
+	APISecrets struct {
+		EventApiSecret string `envconfig:"EVENT_API_SECRET"`
+	}
 }
 
 // The LoadConfig function loads the env file specified and returns

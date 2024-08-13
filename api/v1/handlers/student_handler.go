@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/dita-daystaruni/verisafe/configs"
@@ -13,6 +16,24 @@ import (
 type StudentHandler struct {
 	Store *db.StudentStore
 	Cfg   *configs.Config
+}
+
+func (sh *StudentHandler) EmitUserCreated(user *models.User) {
+	userData, _ := json.Marshal(user)
+	req, err := http.NewRequest("POST", "http://localhost:8080/users/register", bytes.NewBuffer(userData))
+	if err != nil {
+		log.Printf("Error: Failed to publish user: %s\n", err.Error())
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("EVENT_API_SECRET", sh.Cfg.APISecrets.EventApiSecret)
+
+	client := &http.Client{}
+	_, err = client.Do(req)
+	if err != nil {
+		// Handle error
+
+		log.Printf("Error: Failed to publish user: %s\n", err.Error())
+	}
 }
 
 func (uh *StudentHandler) GetLeaderBoard(c *gin.Context) {
@@ -37,6 +58,8 @@ func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	uh.EmitUserCreated(&s.User)
 
 	c.IndentedJSON(http.StatusCreated, s)
 }
