@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
@@ -19,21 +20,45 @@ type StudentHandler struct {
 }
 
 func (sh *StudentHandler) EmitUserCreated(user *models.User) {
-	userData, _ := json.Marshal(user)
-	req, err := http.NewRequest("POST", "http://localhost:8080/users/register", bytes.NewBuffer(userData))
+	userData, err := json.Marshal(user)
 	if err != nil {
-		log.Printf("Error: Failed to publish user: %s\n", err.Error())
+		log.Printf("Error: Failed to marshal user data: %s\n", err.Error())
+		return
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("EVENT_API_SECRET", sh.Cfg.APISecrets.EventApiSecret)
 
-	client := &http.Client{}
-	_, err = client.Do(req)
-	if err != nil {
-		// Handle error
+	// Create a wait group to synchronize goroutines
+	var wg sync.WaitGroup
 
-		log.Printf("Error: Failed to publish user: %s\n", err.Error())
+	for _, url := range sh.Cfg.EventConfig.UserCreateEvent {
+		wg.Add(1) // Increment the wait group counter
+		go func(url string) {
+			defer wg.Done() // Decrement the counter when the goroutine completes
+
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(userData))
+			if err != nil {
+				log.Printf("Error: Failed to create request for %s: %s\n", url, err.Error())
+				return
+			}
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("EVENT_API_SECRET", sh.Cfg.APISecrets.EventApiSecret)
+
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Printf("Error: Failed to send request to %s: %s\n", url, err.Error())
+				return
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				log.Printf("Error: Received non-OK response from %s: %s\n", url, resp.Status)
+			} else {
+				log.Printf("Successfully sent request to %s\n", url)
+			}
+		}(url)
 	}
+
+	wg.Wait() // Wait for all goroutines to finish
 }
 
 func (uh *StudentHandler) GetLeaderBoard(c *gin.Context) {

@@ -1,7 +1,9 @@
 package configs
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -33,6 +35,10 @@ type Config struct {
 	APISecrets struct {
 		EventApiSecret string `envconfig:"EVENT_API_SECRET"`
 	}
+
+	EventConfig struct {
+		UserCreateEvent []string `json:"user-create-event"`
+	}
 }
 
 // The LoadConfig function loads the env file specified and returns
@@ -45,6 +51,17 @@ func LoadConfig() (*Config, error) {
 	}
 	if err := envconfig.Process("", &cfg); err != nil {
 		return nil, fmt.Errorf("Failed to load environment variables: %v", err)
+	}
+
+	// Load the service configuration
+	// Load JSON configuration file
+	jsonFile, err := os.ReadFile("services.json")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read JSON config file: %v", err)
+	}
+
+	if err := json.Unmarshal(jsonFile, &cfg.EventConfig); err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal JSON config file: %v", err)
 	}
 
 	return &cfg, nil
