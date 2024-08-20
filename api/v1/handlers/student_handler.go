@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -45,13 +46,18 @@ func (sh *StudentHandler) EmitUserCreated(user *models.User) {
 			client := &http.Client{}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Printf("Error: Failed to send request to %s: %s\n", url, err.Error())
+				bodyBytes, err := io.ReadAll(resp.Body)
+				if err != nil {
+					log.Fatal(err)
+				}
+				bodyString := string(bodyBytes)
+				log.Printf("Error: Failed to send request to %s: %s\n\n%s\n", url, err.Error(), bodyString)
 				return
 			}
 			defer resp.Body.Close()
 
-			if resp.StatusCode != http.StatusOK {
-				log.Printf("Error: Received non-OK response from %s: %s\n", url, resp.Status)
+			if resp.StatusCode != http.StatusCreated {
+				log.Printf("Error: Received non-Created response from %s: %s\n", url, resp.Status)
 			} else {
 				log.Printf("Successfully sent request to %s\n", url)
 			}

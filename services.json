@@ -1,7 +1,9 @@
 {
-
-
 	"user-create-event": [
 		"http://localhost:8080/users/register"
-	]
+	],
+
+  "user-changed-event":[
+    "http:localhost:8080/users/update"
+  ]
 }
