@@ -26,3 +26,4 @@ go.work.sum
 tmp/
 main
 uploads/
+*.log
