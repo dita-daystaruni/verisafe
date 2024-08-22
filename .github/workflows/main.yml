@@ -1,0 +1,32 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  DOCKER_USERNAME: deetar
+  DOCKER_REPOSITORY: verisafe
+  IMAGE_TAG: latest
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: deetar
+        password: DeetarDaystar@1
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: Dockerfile
+        push: true
+        tags: ${{ env.DOCKER_USERNAME }/${{ env.DOCKER_REPOSITORY }}:${{ env.IMAGE_TAG }}
