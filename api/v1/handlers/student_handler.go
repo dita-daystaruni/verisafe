@@ -1,13 +1,9 @@
 package handlers
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"log"
 	"net/http"
-	"sync"
 
+	"github.com/dita-daystaruni/verisafe/api/v1/handlers/events"
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/dita-daystaruni/verisafe/models/db"
@@ -18,53 +14,6 @@ import (
 type StudentHandler struct {
 	Store *db.StudentStore
 	Cfg   *configs.Config
-}
-
-func (sh *StudentHandler) EmitUserCreated(user *models.User) {
-	userData, err := json.Marshal(user)
-	if err != nil {
-		log.Printf("Error: Failed to marshal user data: %s\n", err.Error())
-		return
-	}
-
-	// Create a wait group to synchronize goroutines
-	var wg sync.WaitGroup
-
-	for _, url := range sh.Cfg.EventConfig.UserCreateEvent {
-		wg.Add(1) // Increment the wait group counter
-		go func(url string) {
-			defer wg.Done() // Decrement the counter when the goroutine completes
-
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(userData))
-			if err != nil {
-				log.Printf("Error: Failed to create request for %s: %s\n", url, err.Error())
-				return
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("EVENT_API_SECRET", sh.Cfg.APISecrets.EventApiSecret)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				bodyBytes, err := io.ReadAll(resp.Body)
-				if err != nil {
-					log.Fatal(err)
-				}
-				bodyString := string(bodyBytes)
-				log.Printf("Error: Failed to send request to %s: %s\n\n%s\n", url, err.Error(), bodyString)
-				return
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusCreated {
-				log.Printf("Error: Received non-Created response from %s: %s\n", url, resp.Status)
-			} else {
-				log.Printf("Successfully sent request to %s\n", url)
-			}
-		}(url)
-	}
-
-	wg.Wait() // Wait for all goroutines to finish
 }
 
 func (uh *StudentHandler) GetLeaderBoard(c *gin.Context) {
@@ -90,7 +39,7 @@ func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 		return
 	}
 
-	uh.EmitUserCreated(&s.User)
+	events.EmitUserCreated(&s.User, uh.Cfg)
 
 	c.IndentedJSON(http.StatusCreated, s)
 }

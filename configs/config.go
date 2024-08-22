@@ -33,7 +33,7 @@ type Config struct {
 	}
 
 	APISecrets struct {
-		EventApiSecret string `envconfig:"EVENT_API_SECRET"`
+		EventApiSecret string `envconfig:"API_KEY"`
 	}
 
 	EventConfig struct {
