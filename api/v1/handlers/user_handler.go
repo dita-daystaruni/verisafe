@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dita-daystaruni/verisafe/api/auth"
+	"github.com/dita-daystaruni/verisafe/api/v1/handlers/events"
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/dita-daystaruni/verisafe/models/db"
@@ -214,6 +215,8 @@ func (uh *UserHandler) UploadProfilePicture(c *gin.Context) {
 			"details": err.Error(),
 		})
 	}
+
+	go events.EmitUserUpdated(&user.User, uh.Cfg)
 
 	c.IndentedJSON(http.StatusOK, user)
 }

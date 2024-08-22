@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/dita-daystaruni/verisafe/api/v1/handlers/events"
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/dita-daystaruni/verisafe/models/db"
@@ -37,6 +38,8 @@ func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	events.EmitUserCreated(&s.User, uh.Cfg)
 
 	c.IndentedJSON(http.StatusCreated, s)
 }
@@ -134,6 +137,7 @@ func (uh *StudentHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
+	events.EmitUserUpdated(&student.User, uh.Cfg)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 

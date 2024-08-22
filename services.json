@@ -1,0 +1,9 @@
+{
+	"user-create-event": [
+		"http://localhost:8080/users/register"
+	],
+
+  "user-update-event":[
+    "http://localhost:8080/users/update/"
+  ]
+}
