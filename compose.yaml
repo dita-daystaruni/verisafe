@@ -1,0 +1,26 @@
+services:
+  verisafe:
+    image: deetar/verisafe:latest # Use the latest VeriSafe image
+    ports:
+      - "${VERISAFE_PORT}:${VERISAFE_PORT}"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    env_file:
+      - .env  # Specify the .env file
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5431:5432"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
