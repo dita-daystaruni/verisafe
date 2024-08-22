@@ -37,7 +37,8 @@ type Config struct {
 	}
 
 	EventConfig struct {
-		UserCreateEvent []string `json:"user-create-event"`
+		UserCreateEvent  []string `json:"user-create-event"`
+		UserUpdatedEvent []string `json:"user-update-event"`
 	}
 }
 

@@ -3,7 +3,7 @@
 		"http://localhost:8080/users/register"
 	],
 
-  "user-changed-event":[
-    "http:localhost:8080/users/update"
+  "user-update-event":[
+    "http://localhost:8080/users/update/"
   ]
 }

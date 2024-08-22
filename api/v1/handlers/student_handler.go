@@ -137,6 +137,7 @@ func (uh *StudentHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
+	events.EmitUserUpdated(&student.User, uh.Cfg)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 
