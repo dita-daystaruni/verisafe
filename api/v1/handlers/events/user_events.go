@@ -92,6 +92,7 @@ func EmitUserUpdated(user *models.User, cfg *configs.Config) {
 
 			if err != nil {
 				cfg.Logger.Errorf(err.Error())
+				return
 			}
 
 			if resp.StatusCode != http.StatusOK {
@@ -134,6 +135,7 @@ func EmitUserDeleted(user *models.User, cfg *configs.Config) {
 
 			if err != nil {
 				cfg.Logger.Errorf(err.Error())
+				return
 			}
 
 			if resp.StatusCode != http.StatusOK {
