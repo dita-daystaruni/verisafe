@@ -30,3 +30,5 @@
 LICENSE
 README.md
 example.env
+README.Docker.md
+.gitignore
