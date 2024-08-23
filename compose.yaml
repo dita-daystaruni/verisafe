@@ -1,6 +1,8 @@
 services:
   verisafe:
-    image: deetar/verisafe:latest # Use the latest VeriSafe image
+    build:
+     context: .
+     dockerfile: Dockerfile
     ports:
       - "${VERISAFE_PORT}:${VERISAFE_PORT}"
     depends_on:
