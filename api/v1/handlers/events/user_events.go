@@ -38,12 +38,6 @@ func EmitUserCreated(user *models.User, cfg *configs.Config) {
 			// Perform Request
 			client := &http.Client{}
 			resp, err := client.Do(req)
-			defer func() {
-				if err := resp.Body.Close(); err != nil {
-					cfg.Logger.Error("Failed to close response body because there wasn't a valid response")
-				}
-			}()
-
 			// handle sending errors
 			if err != nil {
 				cfg.Logger.Errorf("Failed to send request with error: %s\n", err.Error())
@@ -95,11 +89,7 @@ func EmitUserUpdated(user *models.User, cfg *configs.Config) {
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
-			defer func() {
-				if err := resp.Body.Close(); err != nil {
-					cfg.Logger.Error("Failed to close response body because there wasn't a valid response")
-				}
-			}()
+
 			if err != nil {
 				cfg.Logger.Errorf(err.Error())
 			}
@@ -141,11 +131,7 @@ func EmitUserDeleted(user *models.User, cfg *configs.Config) {
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
-			defer func() {
-				if err := resp.Body.Close(); err != nil {
-					cfg.Logger.Error("Failed to close response body because there wasn't a valid response")
-				}
-			}()
+
 			if err != nil {
 				cfg.Logger.Errorf(err.Error())
 			}
