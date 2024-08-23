@@ -39,7 +39,7 @@ func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 		return
 	}
 
-	events.EmitUserCreated(&s.User, uh.Cfg)
+	go events.EmitUserCreated(&s.User, uh.Cfg)
 
 	c.IndentedJSON(http.StatusCreated, s)
 }
@@ -137,7 +137,7 @@ func (uh *StudentHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
-	events.EmitUserUpdated(&student.User, uh.Cfg)
+	go events.EmitUserUpdated(&student.User, uh.Cfg)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 
