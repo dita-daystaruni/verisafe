@@ -24,7 +24,7 @@ func (rh *RewardsHandler) NewTransaction(c *gin.Context) {
 	}
 
 	// write to the db
-	transaction, err := rh.Store.NewRewardTransaction(newTransaction)
+	transaction, err := rh.Store.NewRewardTransaction(newTransaction, *rh.Cfg)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

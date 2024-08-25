@@ -56,9 +56,9 @@ func RegisterHandlers(server *Server) {
 	server.DELETE("/students/delete/:id", mc.RequireValidToken, mc.RequireSameUserOrAdmin, sh.DeleteStudent)
 
 	// Reward transactions
-	server.POST("/rewards/award", mc.RequireAdmin, rh.NewTransaction)
+	server.POST("/rewards/award", mc.RequireService, rh.NewTransaction)
 	server.GET("/rewards/leaderboard", mc.RequireValidToken, sh.GetLeaderBoard)
 	server.GET("/rewards/awards/:userid", mc.RequireValidToken, rh.GetUserTransactions)
 	server.GET("/rewards/awards/all", mc.RequireValidToken, rh.GetAllTransactions)
-	server.DELETE("/rewards/awards/:transaction", mc.RequireValidToken, rh.DeleteRewardTransaction)
+	server.DELETE("/rewards/awards/:transaction", mc.RequireService, rh.DeleteRewardTransaction)
 }

@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/api/auth"
@@ -108,5 +109,15 @@ func (mc *MiddleWareConfig) DeleteToken(c *gin.Context) {
 			gin.H{"error": err.Error()})
 		return
 	}
+	c.Next()
+}
+func (mc *MiddleWareConfig) RequireService(c *gin.Context) {
+	tokenString := c.GetHeader("API-KEY")
+	if tokenString != os.Getenv("API_KEY") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{"error": "You are not authorized to perform this action"})
+		return
+	}
+
 	c.Next()
 }

@@ -29,13 +29,6 @@ func (ss *StudentStore) NewStudent(student models.Student) (*models.Student, err
 		return nil, err
 	}
 
-	var rewardTransactionStore RewardTransactionStore = RewardTransactionStore{DB: ss.DB}
-	if _, err := rewardTransactionStore.NewRewardTransaction(models.RewardTransaction{
-		StudentID: student.ID, Points: 10, Reason: "Academia newcomer point",
-	}); err != nil {
-		return nil, err
-	}
-
 	return &student, nil
 }
 

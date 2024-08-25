@@ -12,7 +12,7 @@ import (
 	"github.com/dita-daystaruni/verisafe/models"
 )
 
-func EmitUserCreated(user *models.User, cfg *configs.Config) {
+func EmitUserCreated(user *models.Student, cfg *configs.Config) {
 	userData, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Error: Failed to marshal user data: %s\n", err.Error())
@@ -64,7 +64,7 @@ func EmitUserCreated(user *models.User, cfg *configs.Config) {
 	wg.Wait() // Wait for all goroutines to finish
 }
 
-func EmitUserUpdated(user *models.User, cfg *configs.Config) {
+func EmitUserUpdated(user *models.Student, cfg *configs.Config) {
 	userData, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Error: Failed to marshal user data: %s\n", err.Error())
@@ -107,7 +107,7 @@ func EmitUserUpdated(user *models.User, cfg *configs.Config) {
 
 }
 
-func EmitUserDeleted(user *models.User, cfg *configs.Config) {
+func EmitUserDeleted(user *models.Student, cfg *configs.Config) {
 	userData, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Error: Failed to marshal user data: %s\n", err.Error())
