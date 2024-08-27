@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dita-daystaruni/verisafe/api/v1/handlers/events"
+	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -15,7 +17,7 @@ type RewardTransactionStore struct {
 }
 
 // Saves a reward transaction
-func (rts *RewardTransactionStore) NewRewardTransaction(rewardTransaction models.RewardTransaction) (*models.RewardTransaction, error) {
+func (rts *RewardTransactionStore) NewRewardTransaction(rewardTransaction models.RewardTransaction, cfg configs.Config) (*models.RewardTransaction, error) {
 	rewardTransaction.AwardedAt = time.Now()
 
 	// Retrieve the user in question
@@ -35,6 +37,8 @@ func (rts *RewardTransactionStore) NewRewardTransaction(rewardTransaction models
 	if err := rts.DB.Debug().Model(&student).Update("vibe_points", student.VibePoints).Error; err != nil {
 		return nil, err
 	}
+
+	go events.EmitUserUpdated(&student, &cfg)
 
 	return &rewardTransaction, nil
 }

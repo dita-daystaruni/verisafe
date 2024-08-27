@@ -38,8 +38,16 @@ func (uh *StudentHandler) RegisterStudent(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	go events.EmitUserCreated(s, uh.Cfg)
 
-	go events.EmitUserCreated(&s.User, uh.Cfg)
+	var rewardTransactionStore db.RewardTransactionStore = db.RewardTransactionStore{DB: uh.Store.DB}
+	if _, err := rewardTransactionStore.NewRewardTransaction(models.RewardTransaction{
+		StudentID: s.ID, Points: 10, Reason: "Academia newcomer point",
+	}, *uh.Cfg); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+
+	}
 
 	c.IndentedJSON(http.StatusCreated, s)
 }
@@ -137,7 +145,7 @@ func (uh *StudentHandler) UpdateStudent(c *gin.Context) {
 		return
 	}
 
-	go events.EmitUserUpdated(&student.User, uh.Cfg)
+	go events.EmitUserUpdated(&student, uh.Cfg)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student details updated successfully"})
 }
 

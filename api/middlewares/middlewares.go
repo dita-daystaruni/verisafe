@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/api/auth"
@@ -17,7 +18,13 @@ type MiddleWareConfig struct {
 }
 
 func (mc *MiddleWareConfig) RequireValidToken(c *gin.Context) {
-	tokenString := c.GetHeader("Token")
+	tokenString := c.GetHeader("service-api-key")
+	if tokenString == os.Getenv("API_KEY") {
+		c.Next()
+		return
+	}
+
+	tokenString = c.GetHeader("Token")
 	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
@@ -42,7 +49,13 @@ func (mc *MiddleWareConfig) RequireValidToken(c *gin.Context) {
 }
 
 func (mc *MiddleWareConfig) RequireAdmin(c *gin.Context) {
-	tokenString := c.GetHeader("Token")
+	tokenString := c.GetHeader("service-api-key")
+	if tokenString == os.Getenv("API_KEY") {
+		c.Next()
+		return
+	}
+
+	tokenString = c.GetHeader("Token")
 	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
@@ -69,7 +82,13 @@ func (mc *MiddleWareConfig) RequireAdmin(c *gin.Context) {
 }
 
 func (mc *MiddleWareConfig) RequireSameUserOrAdmin(c *gin.Context) {
-	tokenString := c.GetHeader("Token")
+	tokenString := c.GetHeader("service-api-key")
+	if tokenString == os.Getenv("API_KEY") {
+		c.Next()
+		return
+	}
+
+	tokenString = c.GetHeader("Token")
 	token, err := auth.VerifyToken(tokenString, mc.Cfg, mc.DB)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized,
@@ -108,5 +127,16 @@ func (mc *MiddleWareConfig) DeleteToken(c *gin.Context) {
 			gin.H{"error": err.Error()})
 		return
 	}
+	c.Next()
+}
+
+func (mc *MiddleWareConfig) RequireService(c *gin.Context) {
+	tokenString := c.GetHeader("service-api-key")
+	if tokenString != os.Getenv("API_KEY") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{"error": "You are not authorized to perform this action"})
+		return
+	}
+
 	c.Next()
 }

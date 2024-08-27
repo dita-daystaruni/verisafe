@@ -216,7 +216,9 @@ func (uh *UserHandler) UploadProfilePicture(c *gin.Context) {
 		})
 	}
 
-	go events.EmitUserUpdated(&user.User, uh.Cfg)
+	stud := models.Student{User: user.User}
+
+	go events.EmitUserUpdated(&stud, uh.Cfg)
 
 	c.IndentedJSON(http.StatusOK, user)
 }
