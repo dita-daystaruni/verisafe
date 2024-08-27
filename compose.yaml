@@ -1,8 +1,6 @@
 services:
   verisafe:
-    build:
-     context: .
-     dockerfile: Dockerfile
+    image: deetar/verisafe
     ports:
       - "${VERISAFE_PORT}:${VERISAFE_PORT}"
     depends_on:
@@ -11,6 +9,8 @@ services:
       - app_network
     env_file:
       - .env  # Specify the .env file
+    volumes:
+      - uploads:/app/uploads
 
   postgres:
     image: postgres:latest
@@ -31,4 +31,5 @@ networks:
 
 volumes:
   postgres_data:
+  uploads:
   
