@@ -78,6 +78,10 @@ func (us *UserStore) UpdateUser(user models.User) (*models.User, error) {
 
 // Deletes a user specified by [id] from the database
 func (us *UserStore) DeleteStudent(id uuid.UUID) error {
+	if err := us.DB.Where("student_id = ?", id).Delete(&models.RewardTransaction{}).Error; err != nil {
+		return err
+	}
+
 	if err := us.DB.Delete(&models.User{}, id).Error; err != nil {
 		return err
 	}
