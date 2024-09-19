@@ -75,7 +75,12 @@ func (ss *StudentStore) GetStudentsByCampus(campus string) (*[]models.Student, e
 // Retrieves all students stored
 func (ss *StudentStore) GetAllStudents() (*[]models.Student, error) {
 	var students []models.Student
-	if err := ss.DB.Find(&students).Error; err != nil {
+	if err := ss.DB.Select(
+		"id", "admission_number", "username",
+		"first_name", "last_name", "national_id",
+		"vibe_points", "address", "date_of_birth",
+		"gender", "date_created", "email", "campus",
+	).Find(&students).Error; err != nil {
 		return nil, err
 	}
 
