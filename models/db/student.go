@@ -106,6 +106,11 @@ func (ss *StudentStore) UpdateStudentDetails(student models.Student) (bool, erro
 
 // Deletes a student specified by id from the database
 func (ss *StudentStore) DeleteStudent(id uuid.UUID) error {
+	if err := ss.DB.Where("student_id = ?", id).
+		Delete(&models.RewardTransaction{}).Error; err != nil {
+		return err
+	}
+
 	if err := ss.DB.Delete(&models.Student{}, id).Error; err != nil {
 		return err
 	}
