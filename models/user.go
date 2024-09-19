@@ -11,20 +11,21 @@ import (
 )
 
 type User struct {
-	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
-	Username    string    `gorm:"uniqueIndex;not null" json:"username"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Gender      string    `json:"gender"`
-	Address     string    `json:"address"`
-	ProfileURL  string    `json:"profile_url"`
-	NationalID  string    `gorm:"uniqueIndex" json:"national_id"`
-	Email       string    `gorm:"uniqueIndex" json:"email"`
-	DateOfBirth time.Time `json:"date_of_birth"`
-	Active      bool      `gorm:"default:true" json:"active"`
-	Password    string    `json:"password"`
-	DateCreated time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_created"`
-	DateUpdated time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_updated"`
+	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Username      string    `gorm:"uniqueIndex;not null" json:"username"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	Gender        string    `json:"gender"`
+	Address       string    `json:"address"`
+	SchoolProfile string    `json:"school_profile"`
+	ProfileURL    string    `json:"profile_url"`
+	NationalID    string    `gorm:"uniqueIndex" json:"national_id"`
+	Email         string    `gorm:"uniqueIndex" json:"email"`
+	DateOfBirth   time.Time `json:"date_of_birth"`
+	Active        bool      `gorm:"default:true" json:"active"`
+	Password      string    `json:"password"`
+	DateCreated   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_created"`
+	DateUpdated   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date_updated"`
 }
 
 // Hooks for before saving
