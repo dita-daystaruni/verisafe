@@ -75,7 +75,12 @@ func (ss *StudentStore) GetStudentsByCampus(campus string) (*[]models.Student, e
 // Retrieves all students stored
 func (ss *StudentStore) GetAllStudents() (*[]models.Student, error) {
 	var students []models.Student
-	if err := ss.DB.Find(&students).Error; err != nil {
+	if err := ss.DB.Select(
+		"id", "admission_number", "username",
+		"first_name", "last_name", "national_id",
+		"vibe_points", "address", "date_of_birth",
+		"gender", "date_created", "email", "campus",
+	).Find(&students).Error; err != nil {
 		return nil, err
 	}
 
@@ -101,6 +106,11 @@ func (ss *StudentStore) UpdateStudentDetails(student models.Student) (bool, erro
 
 // Deletes a student specified by id from the database
 func (ss *StudentStore) DeleteStudent(id uuid.UUID) error {
+	if err := ss.DB.Where("student_id = ?", id).
+		Delete(&models.RewardTransaction{}).Error; err != nil {
+		return err
+	}
+
 	if err := ss.DB.Delete(&models.Student{}, id).Error; err != nil {
 		return err
 	}
