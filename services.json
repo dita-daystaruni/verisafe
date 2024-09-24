@@ -1,11 +1,11 @@
 {
 	"user-create-event": [
-		"http://localhost:84/users/register"
+		"http://62.169.16.219:84/users/register"        
 	],
   "user-update-event":[
-    "http://localhost:84/users/update/"
+    "http://62.169.16.219:84/users/update/"                    
   ],
   "user-delete-event": [
-    "http://localhost:84/users/delete/"
+    "http://62.169.16.219:84/users/delete/"                    
   ]
 }
