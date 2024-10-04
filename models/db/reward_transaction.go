@@ -43,6 +43,30 @@ func (rts *RewardTransactionStore) NewRewardTransaction(rewardTransaction models
 	return &rewardTransaction, nil
 }
 
+// Saves a reward transaction
+func (rts *RewardTransactionStore) AwardDailyLaunch(student models.Student, cfg *configs.Config) error {
+	startOfDay := time.Now().Truncate(24 * time.Hour)
+	endOfDay := startOfDay.Add(24 * time.Hour).Add(-time.Nanosecond)
+
+	// Check if there is any reward created today for the student
+	var reward models.RewardTransaction
+	result := rts.DB.Where("student_id = ? AND awarded_at BETWEEN ? AND ?", student.ID, startOfDay, endOfDay).First(&reward)
+
+	if result.RowsAffected == 0 {
+		_, err := rts.NewRewardTransaction(models.RewardTransaction{
+			AwardedAt: time.Now(),
+			Points:    1,
+			Reason:    "App daily launch",
+			StudentID: student.ID,
+		}, *cfg)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
 func (rts *RewardTransactionStore) GetUserTransactions(userID uuid.UUID) (*[]models.RewardTransaction, error) {
 	var rewardTransactions []models.RewardTransaction
 

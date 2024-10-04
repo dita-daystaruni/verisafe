@@ -56,6 +56,14 @@ func (uh *UserHandler) Login(c *gin.Context) {
 			return
 		}
 
+		// Award daily launch
+		var rewardTransactionStore db.RewardTransactionStore = db.RewardTransactionStore{DB: uh.Store.DB}
+		if err := rewardTransactionStore.AwardDailyLaunch(*stud, uh.Cfg); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+
+		}
+
 		c.Header("Token", token)
 
 		c.IndentedJSON(http.StatusOK, stud)
