@@ -52,7 +52,7 @@ func EmitUserCreated(user *models.Student, cfg *configs.Config) {
 					cfg.Logger.Error(err)
 				}
 				bodyString := string(bodyBytes)
-				cfg.Logger.Error("Error: Failed to send request to %s: %s\n\n%s\n", url, err.Error(), bodyString)
+				cfg.Logger.Error("Error: Failed to send request to %s: %s\n\n", url, bodyString)
 
 			} else {
 				cfg.Logger.Infof("Successfully sent user created event to %s for user %s\n", url, user.Username)
@@ -96,7 +96,7 @@ func EmitUserUpdated(user *models.Student, cfg *configs.Config) {
 			}
 
 			if resp.StatusCode != http.StatusOK {
-				cfg.Logger.Error("Error: Received non-Created response from %s: %s\n", url, resp.Status)
+				cfg.Logger.Error("Error: Received non-updated response from %s: %s\n", url, resp.Status)
 			} else {
 				cfg.Logger.Info("Successfully sent request to %s to update student\n", url)
 			}
@@ -117,7 +117,7 @@ func EmitUserDeleted(user *models.Student, cfg *configs.Config) {
 	// Create a wait group to synchronize goroutines
 	var wg sync.WaitGroup
 
-	for _, url := range cfg.EventConfig.UserUpdatedEvent {
+	for _, url := range cfg.EventConfig.UserDeletedEvent {
 		wg.Add(1) // Increment the wait group counter
 		go func(url string) {
 			defer wg.Done() // Decrement the counter when the goroutine completes
@@ -138,10 +138,10 @@ func EmitUserDeleted(user *models.Student, cfg *configs.Config) {
 				return
 			}
 
-			if resp.StatusCode != http.StatusOK {
-				cfg.Logger.Error("Error: Received non-Created response from %s: %s\n", url, resp.Status)
+			if resp.StatusCode != http.StatusNoContent {
+				cfg.Logger.Error("Error: Received non-deleted response from %s: %s\n", url, resp.Status)
 			} else {
-				cfg.Logger.Info("Successfully sent request to %s to update student\n", url)
+				cfg.Logger.Info("Successfully sent request to %s to delete student\n", url)
 			}
 		}(url)
 	}

@@ -121,7 +121,10 @@ func (ss *StudentStore) DeleteStudent(id uuid.UUID) error {
 func (ss *StudentStore) LeaderBoard() (*[]models.Student, error) {
 	var students []models.Student
 
-	err := ss.DB.Select("username, first_name, vibe_points, profile_url, gender").Order("vibe_points DESC").Limit(25).Find(&students).Error
+	err := ss.DB.Select("username, first_name, vibe_points, profile_url, gender").
+		Order("vibe_points DESC").
+		Limit(25).
+		Find(&students).Error
 	if err != nil {
 		return nil, err
 	}

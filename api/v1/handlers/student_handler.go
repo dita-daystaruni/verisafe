@@ -157,11 +157,21 @@ func (uh *StudentHandler) DeleteStudent(c *gin.Context) {
 		return
 	}
 
+	student, err := uh.Store.GetStudentByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": "Student does not exist!",
+		})
+		return
+
+	}
+
 	err = uh.Store.DeleteStudent(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	go events.EmitUserDeleted(student, uh.Cfg)
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Student deleted successfully"})
 }
