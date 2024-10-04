@@ -1,10 +1,6 @@
-version: '3.1'
-
 services:
   verisafe:
-    build:
-      context: .  # Use the current directory as the build context
-      dockerfile: Dockerfile  # Path to the Dockerfile for the verisafe service
+    image: deetar/verisafe
     ports:
       - "${VERISAFE_PORT}:${VERISAFE_PORT}"
     depends_on:
@@ -13,6 +9,8 @@ services:
       - app_network
     env_file:
       - .env  # Specify the .env file
+    volumes:
+      - uploads:/app/uploads
 
   postgres:
     image: postgres:latest
@@ -25,8 +23,13 @@ services:
     networks:
       - app_network
     volumes:
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  # Mount initialization scripts
+      - postgres_data:/var/lib/postgresql/data
 
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  uploads:
+  
