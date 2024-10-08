@@ -24,6 +24,10 @@ func VerifyAdmno(admno string) bool {
 }
 
 func (u *Student) Validate() error {
+	// Set default campus for Student
+	if u.Campus == "" {
+		u.Campus = "athi"
+	}
 	// user validations
 	if err := u.User.Validate(); err != nil {
 		return err
