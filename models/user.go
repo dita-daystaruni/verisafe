@@ -67,6 +67,11 @@ func (u *User) ComparePassword(password string) (bool, error) {
 // Validates the user's information ensuring that it meets
 // some certain non-empty criteria
 func (u *User) Validate() error {
+
+	if u.Address == "" {
+		u.Address = "50"
+	}
+
 	// Username
 	if len(u.Username) < 3 {
 		return errors.New("Please try a username with more than 3 characters")
@@ -76,11 +81,6 @@ func (u *User) Validate() error {
 	if len(u.FirstName) < 3 || len(u.LastName) < 3 {
 		return errors.New("Please provide your valid names")
 	}
-
-	if u.Address == "" {
-		return errors.New("Please specify your address")
-	}
-
 	if !isValidEmail(u.Email) {
 		return errors.New("Please provide a valid email address")
 	}
