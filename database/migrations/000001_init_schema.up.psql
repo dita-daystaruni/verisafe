@@ -1,0 +1,32 @@
+-- Enable uuid
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+-- User's table
+CREATE TABLE IF NOT EXISTS users ( 
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  username VARCHAR(128) UNIQUE NOT NULL,
+  firstname VARCHAR NOT NULL,
+  othernames VARCHAR NOT NULL,
+  phone VARCHAR(20) NOT NULL DEFAULT 'unkonwn',
+  email VARCHAR(60) NOT NULL DEFAULT 'unkonwn',
+  gender VARCHAR(10) DEFAULT 'unkown',
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+  updated_at DATE NOT NULL DEFAULT CURRENT_DATE
+);
+
+
+-- User Profile
+
+CREATE TABLE IF NOT EXISTS userprofiles (
+  user_id uuid NOT NULL PRIMARY KEY,
+  bio TEXT NOT NULL,
+  vibe_points INT NOT NULL  DEFAULT 0,
+  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+  updated_at DATE NOT NULL DEFAULT CURRENT_DATE,
+
+  CONSTRAINT fk_userprofile_users
+  FOREIGN KEY(user_id)
+  REFERENCES users(id) ON DELETE CASCADE
+);

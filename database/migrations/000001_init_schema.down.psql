@@ -1,0 +1,6 @@
+-- Drop the user profile table
+DROP TABLE IF EXISTS userprofiles;
+
+-- Drop the user's table
+DROP TABLE IF EXISTS users;
+
