@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS userprofile;
+DROP TABLE IF EXISTS users;
