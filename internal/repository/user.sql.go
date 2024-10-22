@@ -23,7 +23,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getActiveUsers = `-- name: GetActiveUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
 WHERE active = true LIMIT $1 OFFSET $2
 `
 
@@ -52,6 +52,8 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.DateOfBirth,
+			&i.NationalID,
 		); err != nil {
 			return nil, err
 		}
@@ -64,7 +66,7 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
 LIMIT $1 OFFSET $2
 `
 
@@ -93,6 +95,8 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.DateOfBirth,
+			&i.NationalID,
 		); err != nil {
 			return nil, err
 		}
@@ -105,7 +109,7 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 }
 
 const getInActiveUsers = `-- name: GetInActiveUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
 WHERE active = false LIMIT $1 OFFSET $2
 `
 
@@ -134,6 +138,8 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.DateOfBirth,
+			&i.NationalID,
 		); err != nil {
 			return nil, err
 		}
@@ -146,7 +152,7 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users 
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users 
 WHERE email = $1 LIMIT 1
 `
 
@@ -164,12 +170,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.DateOfBirth,
+		&i.NationalID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -187,12 +195,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.DateOfBirth,
+		&i.NationalID,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at FROM users
+SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
 WHERE username = $1 LIMIT 1
 `
 
@@ -210,6 +220,8 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.DateOfBirth,
+		&i.NationalID,
 	)
 	return i, err
 }

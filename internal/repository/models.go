@@ -9,17 +9,35 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type User struct {
-	ID         uuid.UUID   `json:"id"`
-	Username   string      `json:"username"`
-	Firstname  string      `json:"firstname"`
-	Othernames string      `json:"othernames"`
-	Phone      pgtype.Text `json:"phone"`
-	Email      pgtype.Text `json:"email"`
-	Gender     pgtype.Text `json:"gender"`
-	Active     pgtype.Bool `json:"active"`
+type Credential struct {
+	UserID     uuid.UUID   `json:"user_id"`
+	Password   string      `json:"password"`
+	LastLogin  pgtype.Date `json:"last_login"`
 	CreatedAt  pgtype.Date `json:"created_at"`
 	ModifiedAt pgtype.Date `json:"modified_at"`
+}
+
+type LoginInfo struct {
+	UserID    uuid.UUID   `json:"user_id"`
+	Username  string      `json:"username"`
+	Email     pgtype.Text `json:"email"`
+	Password  string      `json:"password"`
+	LastLogin pgtype.Date `json:"last_login"`
+}
+
+type User struct {
+	ID          uuid.UUID   `json:"id"`
+	Username    string      `json:"username"`
+	Firstname   string      `json:"firstname"`
+	Othernames  string      `json:"othernames"`
+	Phone       pgtype.Text `json:"phone"`
+	Email       pgtype.Text `json:"email"`
+	Gender      pgtype.Text `json:"gender"`
+	Active      pgtype.Bool `json:"active"`
+	CreatedAt   pgtype.Date `json:"created_at"`
+	ModifiedAt  pgtype.Date `json:"modified_at"`
+	DateOfBirth pgtype.Date `json:"date_of_birth"`
+	NationalID  pgtype.Text `json:"national_id"`
 }
 
 type Userprofile struct {
