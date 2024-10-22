@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
@@ -34,7 +35,7 @@ func (uh *UserHandler) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, user)
+	c.IndentedJSON(http.StatusOK, user)
 
 }
 
@@ -52,7 +53,7 @@ func (uh *UserHandler) GetUserByUsername(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, user)
+	c.IndentedJSON(http.StatusOK, user)
 
 }
 
@@ -61,18 +62,34 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) {
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
+	limitParam := c.DefaultQuery("limit", "10")
+	offsetParam := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+
+	println(limit, offset)
 
 	users, err := repo.GetAllUsers(c.Request.Context(),
 		repository.GetAllUsersParams{
-			Limit:  25,
-			Offset: 0,
+			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, users)
+	c.IndentedJSON(http.StatusOK, users)
 
 }
 
@@ -82,17 +99,32 @@ func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) {
 
 	repo := repository.New(tx)
 
+	limitParam := c.DefaultQuery("limit", "10")
+	offsetParam := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+
 	users, err := repo.GetActiveUsers(c.Request.Context(),
 		repository.GetActiveUsersParams{
-			Limit:  25,
-			Offset: 0,
+			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, users)
+	c.IndentedJSON(http.StatusOK, users)
 
 }
 
@@ -102,16 +134,31 @@ func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) {
 
 	repo := repository.New(tx)
 
+	limitParam := c.DefaultQuery("limit", "10")
+	offsetParam := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+
 	users, err := repo.GetInActiveUsers(c.Request.Context(),
 		repository.GetInActiveUsersParams{
-			Limit:  25,
-			Offset: 0,
+			Limit:  int32(limit),
+			Offset: int32(offset),
 		})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, users)
+	c.IndentedJSON(http.StatusOK, users)
 
 }

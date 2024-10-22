@@ -38,7 +38,7 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -81,7 +81,7 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -124,7 +124,7 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(

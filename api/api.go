@@ -20,7 +20,7 @@ func RegisterHandlers(s *Server) {
 		{
 			v2Users.GET("/all", uh.GetAllUsers)
 			v2Users.GET("find/id/:id", uh.GetUserByID)
-			v2Users.GET("find/username/:username", uh.GetUserByID)
+			v2Users.GET("find/username/:username", uh.GetUserByUsername)
 			v2Users.GET("/active", uh.GetAllActiveUsers)
 			v2Users.GET("/inactive", uh.GetAllInActiveUsers)
 		}
