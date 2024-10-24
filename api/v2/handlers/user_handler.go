@@ -6,6 +6,7 @@ import (
 
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
+	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -131,6 +132,18 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
 		return
 	}
 
+	if userCreds.Password != "" {
+		hashedPassword, err := utils.HashPassword(userCreds.Password)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to hash password please try again with different password",
+			})
+			return
+		}
+
+		userCreds.Password = string(hashedPassword)
+	}
+
 	creds, err := repo.CreateUserCredentials(c.Request.Context(), userCreds)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
@@ -163,6 +176,18 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
 			"error": "Please check your request body and try again",
 		})
 		return
+	}
+
+	if userCreds.Password != "" {
+		hashedPassword, err := utils.HashPassword(userCreds.Password)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to hash password please try again with different password",
+			})
+			return
+		}
+
+		userCreds.Password = string(hashedPassword)
 	}
 
 	creds, err := repo.UpdateUserCredentials(c.Request.Context(), userCreds)
