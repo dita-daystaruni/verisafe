@@ -43,9 +43,11 @@ offset $2
 ;
 
 -- name: DeleteUser :exec
-DELETE from users
-where id = $1;
-COMMIT;
+delete from users
+where id = $1
+;
+commit
+;
 
 -- name: CreateUser :one
 INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id, date_of_birth)
@@ -60,7 +62,8 @@ RETURNING *;
 -- name: UpdateUserCredentials :one
 UPDATE credentials
   SET password = $2,
-  modified_at = NOW()
+  modified_at = NOW(),
+  last_login = COALESCE(last_login, $3)
   WHERE user_id = $1
   RETURNING *;
 

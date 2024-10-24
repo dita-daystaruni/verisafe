@@ -13,6 +13,7 @@ func RegisterHandlers(s *Server) {
 	})
 
 	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config}
+	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config}
 
 	v2 := s.Group("/v2")
 	{
@@ -35,5 +36,11 @@ func RegisterHandlers(s *Server) {
 			v2Credentials.POST("/create", uh.CreateUserCredentials)
 			v2Credentials.PATCH("/change-password", uh.UpdateUserCredentials)
 		}
+
+	}
+
+	v2Auth := v2.Group("/auth")
+	{
+		v2Auth.POST("/authenticate", ah.Login)
 	}
 }

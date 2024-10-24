@@ -1,5 +1,7 @@
 -- name: GetUserCredentials :one
-SELECT * FROM login_info
-WHERE username = $1
-OR email = $2
-OR user_id = $3 LIMIT 1;
+select *
+from login_info
+where username = $1 or email = $2 or user_id = $3
+limit 1
+;
+

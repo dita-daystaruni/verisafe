@@ -5,16 +5,18 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Credential struct {
-	UserID     uuid.UUID   `json:"user_id"`
-	Password   string      `json:"password"`
-	LastLogin  pgtype.Date `json:"last_login"`
-	CreatedAt  pgtype.Date `json:"created_at"`
-	ModifiedAt pgtype.Date `json:"modified_at"`
+	UserID     uuid.UUID `json:"user_id"`
+	Password   string    `json:"password"`
+	LastLogin  time.Time `json:"last_login"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
 }
 
 type LoginInfo struct {
@@ -22,7 +24,7 @@ type LoginInfo struct {
 	Username  string      `json:"username"`
 	Email     pgtype.Text `json:"email"`
 	Password  string      `json:"password"`
-	LastLogin pgtype.Date `json:"last_login"`
+	LastLogin time.Time   `json:"last_login"`
 }
 
 type User struct {
@@ -34,8 +36,8 @@ type User struct {
 	Email       pgtype.Text `json:"email"`
 	Gender      pgtype.Text `json:"gender"`
 	Active      pgtype.Bool `json:"active"`
-	CreatedAt   pgtype.Date `json:"created_at"`
-	ModifiedAt  pgtype.Date `json:"modified_at"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ModifiedAt  time.Time   `json:"modified_at"`
 	DateOfBirth pgtype.Date `json:"date_of_birth"`
 	NationalID  pgtype.Text `json:"national_id"`
 }
@@ -45,9 +47,9 @@ type Userprofile struct {
 	Bio               pgtype.Text `json:"bio"`
 	VibePoints        int32       `json:"vibe_points"`
 	ProfilePictureUrl string      `json:"profile_picture_url"`
-	LastSeen          pgtype.Date `json:"last_seen"`
-	CreatedAt         pgtype.Date `json:"created_at"`
-	ModifiedAt        pgtype.Date `json:"modified_at"`
+	LastSeen          time.Time   `json:"last_seen"`
+	CreatedAt         time.Time   `json:"created_at"`
+	ModifiedAt        time.Time   `json:"modified_at"`
 	AdmissionNumber   pgtype.Text `json:"admission_number"`
 	Campus            string      `json:"campus"`
 }

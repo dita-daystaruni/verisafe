@@ -7,6 +7,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -118,7 +119,7 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-DELETE from users
+delete from users
 where id = $1
 `
 
@@ -348,18 +349,20 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 const updateUserCredentials = `-- name: UpdateUserCredentials :one
 UPDATE credentials
   SET password = $2,
-  modified_at = NOW()
+  modified_at = NOW(),
+  last_login = COALESCE(last_login, $3)
   WHERE user_id = $1
   RETURNING user_id, password, last_login, created_at, modified_at
 `
 
 type UpdateUserCredentialsParams struct {
-	UserID   uuid.UUID `json:"user_id"`
-	Password string    `json:"password"`
+	UserID    uuid.UUID `json:"user_id"`
+	Password  string    `json:"password"`
+	LastLogin time.Time `json:"last_login"`
 }
 
 func (q *Queries) UpdateUserCredentials(ctx context.Context, arg UpdateUserCredentialsParams) (Credential, error) {
-	row := q.db.QueryRow(ctx, updateUserCredentials, arg.UserID, arg.Password)
+	row := q.db.QueryRow(ctx, updateUserCredentials, arg.UserID, arg.Password, arg.LastLogin)
 	var i Credential
 	err := row.Scan(
 		&i.UserID,

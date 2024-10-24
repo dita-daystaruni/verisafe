@@ -19,4 +19,9 @@ sql:
             go_type:
               import: "time"
               type: "Time"
+          - db_type: "date"
+            go_type:
+              import: "time"
+              type: "Time"
+
 
