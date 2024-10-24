@@ -12,9 +12,114 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id, date_of_birth)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+`
+
+type CreateUserParams struct {
+	Username    string      `json:"username"`
+	Firstname   string      `json:"firstname"`
+	Othernames  string      `json:"othernames"`
+	Phone       pgtype.Text `json:"phone"`
+	Email       pgtype.Text `json:"email"`
+	Gender      pgtype.Text `json:"gender"`
+	NationalID  pgtype.Text `json:"national_id"`
+	DateOfBirth pgtype.Date `json:"date_of_birth"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Username,
+		arg.Firstname,
+		arg.Othernames,
+		arg.Phone,
+		arg.Email,
+		arg.Gender,
+		arg.NationalID,
+		arg.DateOfBirth,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Firstname,
+		&i.Othernames,
+		&i.Phone,
+		&i.Email,
+		&i.Gender,
+		&i.Active,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.DateOfBirth,
+		&i.NationalID,
+	)
+	return i, err
+}
+
+const createUserCredentials = `-- name: CreateUserCredentials :one
+INSERT INTO credentials (user_id, password)
+VALUES ($1, $2)
+RETURNING user_id, password, last_login, created_at, modified_at
+`
+
+type CreateUserCredentialsParams struct {
+	UserID   uuid.UUID `json:"user_id"`
+	Password string    `json:"password"`
+}
+
+func (q *Queries) CreateUserCredentials(ctx context.Context, arg CreateUserCredentialsParams) (Credential, error) {
+	row := q.db.QueryRow(ctx, createUserCredentials, arg.UserID, arg.Password)
+	var i Credential
+	err := row.Scan(
+		&i.UserID,
+		&i.Password,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+	)
+	return i, err
+}
+
+const createUserProfile = `-- name: CreateUserProfile :one
+INSERT INTO userprofile (user_id,admission_number, bio,campus, profile_picture_url)
+VALUES($1,$2,$3,$4,'no-profile')
+RETURNING user_id, bio, vibe_points, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
+`
+
+type CreateUserProfileParams struct {
+	UserID          uuid.UUID   `json:"user_id"`
+	AdmissionNumber pgtype.Text `json:"admission_number"`
+	Bio             pgtype.Text `json:"bio"`
+	Campus          string      `json:"campus"`
+}
+
+func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error) {
+	row := q.db.QueryRow(ctx, createUserProfile,
+		arg.UserID,
+		arg.AdmissionNumber,
+		arg.Bio,
+		arg.Campus,
+	)
+	var i Userprofile
+	err := row.Scan(
+		&i.UserID,
+		&i.Bio,
+		&i.VibePoints,
+		&i.ProfilePictureUrl,
+		&i.LastSeen,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.AdmissionNumber,
+		&i.Campus,
+	)
+	return i, err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM users
-WHERE id = $1
+DELETE from users
+where id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
@@ -23,8 +128,11 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getActiveUsers = `-- name: GetActiveUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
-WHERE active = true LIMIT $1 OFFSET $2
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+where active = true
+limit $1
+offset $2
 `
 
 type GetActiveUsersParams struct {
@@ -66,8 +174,10 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
-LIMIT $1 OFFSET $2
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+limit $1
+offset $2
 `
 
 type GetAllUsersParams struct {
@@ -109,8 +219,11 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 }
 
 const getInActiveUsers = `-- name: GetInActiveUsers :many
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
-WHERE active = false LIMIT $1 OFFSET $2
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+where active = false
+limit $1
+offset $2
 `
 
 type GetInActiveUsersParams struct {
@@ -152,8 +265,10 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users 
-WHERE email = $1 LIMIT 1
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+where email = $1
+limit 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
@@ -177,8 +292,10 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
-WHERE id = $1 LIMIT 1
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+where id = $1
+limit 1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
@@ -202,8 +319,10 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id FROM users
-WHERE username = $1 LIMIT 1
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+from users
+where username = $1
+limit 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -222,6 +341,75 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.ModifiedAt,
 		&i.DateOfBirth,
 		&i.NationalID,
+	)
+	return i, err
+}
+
+const updateUserCredentials = `-- name: UpdateUserCredentials :one
+UPDATE credentials
+  SET password = $2,
+  modified_at = NOW()
+  WHERE user_id = $1
+  RETURNING user_id, password, last_login, created_at, modified_at
+`
+
+type UpdateUserCredentialsParams struct {
+	UserID   uuid.UUID `json:"user_id"`
+	Password string    `json:"password"`
+}
+
+func (q *Queries) UpdateUserCredentials(ctx context.Context, arg UpdateUserCredentialsParams) (Credential, error) {
+	row := q.db.QueryRow(ctx, updateUserCredentials, arg.UserID, arg.Password)
+	var i Credential
+	err := row.Scan(
+		&i.UserID,
+		&i.Password,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+	)
+	return i, err
+}
+
+const updateUserProfile = `-- name: UpdateUserProfile :one
+UPDATE userprofile
+  SET 
+  admission_number = COALESCE($2, admission_number),
+  bio = COALESCE($3, bio),
+  profile_picture_url = COALESCE($4, profile_picture_url),
+  campus = COALESCE($5, campus),
+  modified_at = NOW()
+  WHERE user_id = $1
+  RETURNING user_id, bio, vibe_points, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
+`
+
+type UpdateUserProfileParams struct {
+	UserID            uuid.UUID   `json:"user_id"`
+	AdmissionNumber   pgtype.Text `json:"admission_number"`
+	Bio               pgtype.Text `json:"bio"`
+	ProfilePictureUrl string      `json:"profile_picture_url"`
+	Campus            string      `json:"campus"`
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (Userprofile, error) {
+	row := q.db.QueryRow(ctx, updateUserProfile,
+		arg.UserID,
+		arg.AdmissionNumber,
+		arg.Bio,
+		arg.ProfilePictureUrl,
+		arg.Campus,
+	)
+	var i Userprofile
+	err := row.Scan(
+		&i.UserID,
+		&i.Bio,
+		&i.VibePoints,
+		&i.ProfilePictureUrl,
+		&i.LastSeen,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.AdmissionNumber,
+		&i.Campus,
 	)
 	return i, err
 }

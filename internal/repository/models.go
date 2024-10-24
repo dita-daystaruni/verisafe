@@ -48,4 +48,6 @@ type Userprofile struct {
 	LastSeen          pgtype.Date `json:"last_seen"`
 	CreatedAt         pgtype.Date `json:"created_at"`
 	ModifiedAt        pgtype.Date `json:"modified_at"`
+	AdmissionNumber   pgtype.Text `json:"admission_number"`
+	Campus            string      `json:"campus"`
 }

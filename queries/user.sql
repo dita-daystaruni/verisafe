@@ -1,27 +1,82 @@
 -- name: GetUserByID :one
-SELECT * FROM users
-WHERE id = $1 LIMIT 1;
+select *
+from users
+where id = $1
+limit 1
+;
 
 -- name: GetUserByEmail :one
-SELECT * FROM users 
-WHERE email = $1 LIMIT 1;
+select *
+from users
+where email = $1
+limit 1
+;
 
 -- name: GetUserByUsername :one
-SELECT * FROM users
-WHERE username = $1 LIMIT 1;
+select *
+from users
+where username = $1
+limit 1
+;
 
 -- name: GetActiveUsers :many
-SELECT * FROM users
-WHERE active = true LIMIT $1 OFFSET $2;
+select *
+from users
+where active = true
+limit $1
+offset $2
+;
 
 -- name: GetInActiveUsers :many
-SELECT * FROM users
-WHERE active = false LIMIT $1 OFFSET $2;
+select *
+from users
+where active = false
+limit $1
+offset $2
+;
 
 -- name: GetAllUsers :many
-SELECT * FROM users
-LIMIT $1 OFFSET $2;
+select *
+from users
+limit $1
+offset $2
+;
 
 -- name: DeleteUser :exec
-DELETE FROM users
-WHERE id = $1;
+DELETE from users
+where id = $1;
+COMMIT;
+
+-- name: CreateUser :one
+INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id, date_of_birth)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *;
+
+-- name: CreateUserCredentials :one
+INSERT INTO credentials (user_id, password)
+VALUES ($1, $2)
+RETURNING *;
+
+-- name: UpdateUserCredentials :one
+UPDATE credentials
+  SET password = $2,
+  modified_at = NOW()
+  WHERE user_id = $1
+  RETURNING *;
+
+-- name: CreateUserProfile :one
+INSERT INTO userprofile (user_id,admission_number, bio,campus, profile_picture_url)
+VALUES($1,$2,$3,$4,'no-profile')
+RETURNING *;
+
+-- name: UpdateUserProfile :one
+UPDATE userprofile
+  SET 
+  admission_number = COALESCE($2, admission_number),
+  bio = COALESCE($3, bio),
+  profile_picture_url = COALESCE($4, profile_picture_url),
+  campus = COALESCE($5, campus),
+  modified_at = NOW()
+  WHERE user_id = $1
+  RETURNING *;
+

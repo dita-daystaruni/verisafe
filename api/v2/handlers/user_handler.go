@@ -16,6 +16,174 @@ type UserHandler struct {
 	Cfg  *configs.Config
 }
 
+func (uh *UserHandler) RegisterUser(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userData repository.CreateUserParams
+
+	if err := c.ShouldBindJSON(&userData); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": "Please check your request body and try again",
+		})
+		return
+	}
+
+	user, err := repo.CreateUser(c.Request.Context(), userData)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error creating user",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusCreated, user)
+}
+
+func (uh *UserHandler) CreateUserProfile(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userData repository.CreateUserProfileParams
+
+	if err := c.ShouldBindJSON(&userData); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": "Please check your request body and try again",
+		})
+		return
+	}
+	profile, err := repo.CreateUserProfile(c.Request.Context(), userData)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error creating user profile",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusCreated, profile)
+}
+
+func (uh *UserHandler) UpdateUserProfile(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userData repository.UpdateUserProfileParams
+
+	if err := c.ShouldBindJSON(&userData); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": "Please check your request body and try again",
+		})
+		return
+	}
+	profile, err := repo.UpdateUserProfile(c.Request.Context(), userData)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error updating user profile",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusOK, profile)
+}
+
+func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userCreds repository.CreateUserCredentialsParams
+
+	if err := c.ShouldBindJSON(&userCreds); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": "Please check your request body and try again",
+		})
+		return
+	}
+
+	creds, err := repo.CreateUserCredentials(c.Request.Context(), userCreds)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error creating user credentials",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusCreated, creds)
+}
+
+func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userCreds repository.UpdateUserCredentialsParams
+
+	if err := c.ShouldBindJSON(&userCreds); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": "Please check your request body and try again",
+		})
+		return
+	}
+
+	creds, err := repo.UpdateUserCredentials(c.Request.Context(), userCreds)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error updating user credentials",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusCreated, creds)
+}
+
 func (uh *UserHandler) GetUserByID(c *gin.Context) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
@@ -160,5 +328,41 @@ func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, users)
+
+}
+
+func (uh *UserHandler) DeleteUser(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	rawID := c.Param("id")
+	id, err := uuid.Parse(rawID)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Please specify a valid id and try that again"})
+		return
+	}
+
+	err = repo.DeleteUser(c.Request.Context(), id)
+	if err != nil {
+
+	}
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error creating user",
+			"details": err.Error(),
+		})
+		return
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error committing transaction",
+			"details": err.Error(),
+		})
+		return
+
+	}
+	c.IndentedJSON(http.StatusNoContent, gin.H{"message": "goodbye!"})
 
 }

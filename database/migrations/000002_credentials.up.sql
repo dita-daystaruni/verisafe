@@ -7,6 +7,14 @@ ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
 ALTER TABLE users ADD COLUMN
 date_of_birth DATE;
 
+-- Add student admission number on user profile
+ALTER TABLE userprofile ADD COLUMN
+admission_number VARCHAR(7) UNIQUE;
+
+-- Add campus column
+ALTER TABLE userprofile ADD COLUMN 
+campus VARCHAR(20) NOT NULL DEFAULT 'athi';
+
 
 -- Add national_id
 ALTER TABLE users ADD COLUMN
@@ -22,6 +30,7 @@ CREATE TABLE IF NOT EXISTS credentials (
 
   CONSTRAINT fk_user
   FOREIGN KEY(user_id) REFERENCES users(id)
+  ON DELETE CASCADE
 );
 
 
