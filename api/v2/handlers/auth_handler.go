@@ -38,7 +38,7 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 		})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error retrieving user credentials please try again later",
+			"error":   "Error retrieving user please register or try again later",
 			"details": err.Error(),
 		})
 		return
