@@ -93,3 +93,12 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, user)
 }
+
+// Removes the authorization header from the client
+func (ah *AuthHandler) Logout(c *gin.Context) {
+
+	c.Header("Authorization", "")
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"message": "goodbye say we must, again meet we will",
+	})
+}

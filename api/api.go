@@ -44,5 +44,6 @@ func RegisterHandlers(s *Server) {
 	v2Auth := v2.Group("/auth")
 	{
 		v2Auth.POST("/authenticate", ah.Login)
+		v2Auth.GET("/logout", ah.Logout)
 	}
 }
