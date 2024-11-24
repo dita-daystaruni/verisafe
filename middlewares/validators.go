@@ -12,6 +12,8 @@ type MiddlewareConfig struct {
 	Cfg *configs.Config
 }
 
+// Decodes the token, validates it
+// and sets the claim to the request context
 func (mc *MiddlewareConfig) RequireValidToken(c *gin.Context) {
 	bearerToken := c.GetHeader("Authorization")
 
@@ -28,5 +30,7 @@ func (mc *MiddlewareConfig) RequireValidToken(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+
+	c.Set("claims", claims)
 	c.Next()
 }

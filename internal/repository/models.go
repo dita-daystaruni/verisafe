@@ -20,11 +20,33 @@ type Credential struct {
 }
 
 type LoginInfo struct {
-	UserID    uuid.UUID   `json:"user_id"`
-	Username  string      `json:"username"`
-	Email     pgtype.Text `json:"email"`
-	Password  string      `json:"password"`
-	LastLogin time.Time   `json:"last_login"`
+	UserID          uuid.UUID   `json:"user_id"`
+	Username        string      `json:"username"`
+	Email           pgtype.Text `json:"email"`
+	Password        string      `json:"password"`
+	LastLogin       time.Time   `json:"last_login"`
+	AdmissionNumber pgtype.Text `json:"admission_number"`
+}
+
+type Permission struct {
+	ID          int32       `json:"id"`
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ModifiedAt  time.Time   `json:"modified_at"`
+}
+
+type Role struct {
+	ID          int32       `json:"id"`
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ModifiedAt  time.Time   `json:"modified_at"`
+}
+
+type RolePermission struct {
+	RoleID       int32 `json:"role_id"`
+	PermissionID int32 `json:"permission_id"`
 }
 
 type User struct {
@@ -40,6 +62,22 @@ type User struct {
 	ModifiedAt  time.Time   `json:"modified_at"`
 	DateOfBirth pgtype.Date `json:"date_of_birth"`
 	NationalID  pgtype.Text `json:"national_id"`
+}
+
+type UserRole struct {
+	UserID     uuid.UUID `json:"user_id"`
+	RoleID     int32     `json:"role_id"`
+	AssignedAt time.Time `json:"assigned_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+}
+
+type UserRolePermission struct {
+	UserID         uuid.UUID   `json:"user_id"`
+	Username       string      `json:"username"`
+	Firstname      string      `json:"firstname"`
+	Othernames     string      `json:"othernames"`
+	RoleName       string      `json:"role_name"`
+	PermissionName pgtype.Text `json:"permission_name"`
 }
 
 type Userprofile struct {

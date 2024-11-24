@@ -34,9 +34,10 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 
 	creds, err := repo.GetUserCredentials(c.Request.Context(),
 		repository.GetUserCredentialsParams{
-			Username: authCreds.Username,
-			Email:    authCreds.Email,
-			UserID:   authCreds.UserID,
+			Username:        authCreds.Username,
+			Email:           authCreds.Email,
+			UserID:          authCreds.UserID,
+			AdmissionNumber: authCreds.AdmissionNumber,
 		})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{

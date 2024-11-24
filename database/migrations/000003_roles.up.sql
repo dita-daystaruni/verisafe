@@ -1,3 +1,17 @@
+-- Login Info view
+CREATE OR REPLACE VIEW login_info AS
+SELECT 
+  u.id AS user_id,
+  u.username,
+  u.email,
+  c.password,
+  c.last_login,
+  p.admission_number
+FROM 
+  users u
+JOIN 
+  credentials c ON u.id = c.user_id JOIN userprofile p ON u.id = p.user_id;
+
 -- Creation of roles table
 CREATE TABLE roles (
   id SERIAL PRIMARY KEY,
@@ -62,9 +76,19 @@ INSERT INTO roles
 INSERT INTO permissions 
 (id,name, description)
 VALUES 
-(1,'user management', 'Manage all users'),
-(2,'role management', 'Manage all user roles'),
-(3,'personal profile', 'Manage only personal profile');
+(1,'read:user', 'Read all users'),
+(2,'modify:user', 'Modify user data'),
+(3,'delete:user', 'Delete user data'),
+(4,'create:user', 'Create a user'),
+(5,'read:roles', 'Read all roles'),
+(6,'create:roles', 'Create a role'),
+(7,'modify:roles', 'Update roles'),
+(8,'delete:roles', 'Delete a role'),
+(9,'assign:roles', 'Assign roles to users'),
+(10, 'read:userprofile', 'Retrieve user profiles'),
+(11, 'modify:userprofile', 'Update user profiles'),
+(12, 'create:userprofile', 'Create user profiles'),
+(13, 'delete:userprofile', 'Delete user profiles');
 
 -- Assign the permissions to the roles
 INSERT INTO role_permissions
@@ -72,7 +96,22 @@ INSERT INTO role_permissions
 VALUES
 (1, 1),
 (1, 2),
-(2, 3);
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(2, 10),
+(2, 11),
+(2, 12),
+(2, 13);
+
 -- Trigger to assign the default student role to a user
 create or replace function assign_student_role()
 returns trigger
