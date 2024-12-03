@@ -36,6 +36,9 @@ func (u *Student) Validate() error {
 	if len(u.AdmissionNumber) < 7 && !VerifyAdmno(u.AdmissionNumber) {
 		return errors.New("Please provide a valid admission number in the 00-0000 format")
 	}
+  if u.Campus == ""{
+    u.Campus = "athi"
+  }
 	if u.Campus != "athi" && u.Campus != "nairobi" {
 		return errors.New("Please specify a valid campus athi or nairobi")
 	}
