@@ -17,11 +17,13 @@ sql:
               type: "UUID"
           - db_type: "timestamptz"
             go_type:
-              import: "time"
-              type: "Time"
+              import: "github.com/dromara/carbon/v2"
+              # import: "time"
+              type: "Carbon"
           - db_type: "date"
             go_type:
-              import: "time"
-              type: "Time"
+              # import: "time"
+              import: "github.com/dromara/carbon/v2"
+              type: "Carbon"
 
 

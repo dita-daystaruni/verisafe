@@ -17,8 +17,8 @@ CREATE TABLE roles (
   id SERIAL PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
   description TEXT,
-  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Permissions table
@@ -26,16 +26,16 @@ CREATE TABLE permissions (
   id SERIAL PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
   description TEXT,
-  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- user roles table
 CREATE TABLE user_roles (
   user_id UUID REFERENCES users(id),
   role_id INT REFERENCES roles(id),
-  assigned_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE,
+  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY(user_id, role_id)
 );
 

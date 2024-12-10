@@ -7,27 +7,26 @@ package repository
 
 import (
 	"context"
-	"time"
 
+	carbon "github.com/dromara/carbon/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id, date_of_birth)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 `
 
 type CreateUserParams struct {
-	Username    string      `json:"username"`
-	Firstname   string      `json:"firstname"`
-	Othernames  string      `json:"othernames"`
-	Phone       pgtype.Text `json:"phone"`
-	Email       pgtype.Text `json:"email"`
-	Gender      pgtype.Text `json:"gender"`
-	NationalID  pgtype.Text `json:"national_id"`
-	DateOfBirth pgtype.Date `json:"date_of_birth"`
+	Username   string      `json:"username"`
+	Firstname  string      `json:"firstname"`
+	Othernames string      `json:"othernames"`
+	Phone      pgtype.Text `json:"phone"`
+	Email      pgtype.Text `json:"email"`
+	Gender     pgtype.Text `json:"gender"`
+	NationalID pgtype.Text `json:"national_id"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -39,7 +38,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.Gender,
 		arg.NationalID,
-		arg.DateOfBirth,
 	)
 	var i User
 	err := row.Scan(
@@ -53,7 +51,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
-		&i.DateOfBirth,
 		&i.NationalID,
 	)
 	return i, err
@@ -84,16 +81,17 @@ func (q *Queries) CreateUserCredentials(ctx context.Context, arg CreateUserCrede
 }
 
 const createUserProfile = `-- name: CreateUserProfile :one
-INSERT INTO userprofile (user_id,admission_number, bio,campus, profile_picture_url)
-VALUES($1,$2,$3,$4,'no-profile')
-RETURNING user_id, bio, vibe_points, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
+INSERT INTO userprofile (user_id,admission_number, bio,campus,date_of_birth, profile_picture_url)
+VALUES($1,$2,$3,$4,$5,'no-profile')
+RETURNING user_id, bio, vibe_points, date_of_birth, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
 `
 
 type CreateUserProfileParams struct {
-	UserID          uuid.UUID   `json:"user_id"`
-	AdmissionNumber pgtype.Text `json:"admission_number"`
-	Bio             pgtype.Text `json:"bio"`
-	Campus          string      `json:"campus"`
+	UserID          uuid.UUID     `json:"user_id"`
+	AdmissionNumber pgtype.Text   `json:"admission_number"`
+	Bio             pgtype.Text   `json:"bio"`
+	Campus          string        `json:"campus"`
+	DateOfBirth     carbon.Carbon `json:"date_of_birth"`
 }
 
 func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error) {
@@ -102,12 +100,14 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 		arg.AdmissionNumber,
 		arg.Bio,
 		arg.Campus,
+		arg.DateOfBirth,
 	)
 	var i Userprofile
 	err := row.Scan(
 		&i.UserID,
 		&i.Bio,
 		&i.VibePoints,
+		&i.DateOfBirth,
 		&i.ProfilePictureUrl,
 		&i.LastSeen,
 		&i.CreatedAt,
@@ -129,7 +129,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getActiveUsers = `-- name: GetActiveUsers :many
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 where active = true
 limit $1
@@ -161,7 +161,6 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
-			&i.DateOfBirth,
 			&i.NationalID,
 		); err != nil {
 			return nil, err
@@ -175,7 +174,7 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 limit $1
 offset $2
@@ -206,7 +205,6 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
-			&i.DateOfBirth,
 			&i.NationalID,
 		); err != nil {
 			return nil, err
@@ -220,7 +218,7 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 }
 
 const getInActiveUsers = `-- name: GetInActiveUsers :many
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 where active = false
 limit $1
@@ -252,7 +250,6 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 			&i.Active,
 			&i.CreatedAt,
 			&i.ModifiedAt,
-			&i.DateOfBirth,
 			&i.NationalID,
 		); err != nil {
 			return nil, err
@@ -266,7 +263,7 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 where email = $1
 limit 1
@@ -286,14 +283,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
-		&i.DateOfBirth,
 		&i.NationalID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 where id = $1
 limit 1
@@ -313,14 +309,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
-		&i.DateOfBirth,
 		&i.NationalID,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, date_of_birth, national_id
+select id, username, firstname, othernames, phone, email, gender, active, created_at, modified_at, national_id
 from users
 where username = $1
 limit 1
@@ -340,7 +335,6 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Active,
 		&i.CreatedAt,
 		&i.ModifiedAt,
-		&i.DateOfBirth,
 		&i.NationalID,
 	)
 	return i, err
@@ -356,9 +350,9 @@ UPDATE credentials
 `
 
 type UpdateUserCredentialsParams struct {
-	UserID    uuid.UUID `json:"user_id"`
-	Password  string    `json:"password"`
-	LastLogin time.Time `json:"last_login"`
+	UserID    uuid.UUID     `json:"user_id"`
+	Password  string        `json:"password"`
+	LastLogin carbon.Carbon `json:"last_login"`
 }
 
 func (q *Queries) UpdateUserCredentials(ctx context.Context, arg UpdateUserCredentialsParams) (Credential, error) {
@@ -383,7 +377,7 @@ UPDATE userprofile
   campus = COALESCE($5, campus),
   modified_at = NOW()
   WHERE user_id = $1
-  RETURNING user_id, bio, vibe_points, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
+  RETURNING user_id, bio, vibe_points, date_of_birth, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus
 `
 
 type UpdateUserProfileParams struct {
@@ -407,6 +401,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 		&i.UserID,
 		&i.Bio,
 		&i.VibePoints,
+		&i.DateOfBirth,
 		&i.ProfilePictureUrl,
 		&i.LastSeen,
 		&i.CreatedAt,

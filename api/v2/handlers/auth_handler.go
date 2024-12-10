@@ -3,12 +3,12 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/dita-daystaruni/verisafe/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/dita-daystaruni/verisafe/middlewares"
+	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 )
@@ -25,9 +25,10 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 	repo := repository.New(tx)
 
 	var authCreds repository.LoginInfo
-	if err := c.ShouldBindJSON(&authCreds); err != nil {
+	if err := c.ShouldBind(&authCreds); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Please check your request body and try again",
+			"error":   "Please check your request body and try again",
+			"details": err.Error(),
 		})
 		return
 	}
@@ -59,7 +60,7 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 	_, err = repo.UpdateUserCredentials(c.Request.Context(),
 		repository.UpdateUserCredentialsParams{
 			UserID:    creds.UserID,
-			LastLogin: time.Now(),
+			LastLogin: carbon.Now(),
 		},
 	)
 	if err != nil {

@@ -2,11 +2,6 @@
 ALTER TABLE users ADD CONSTRAINT unique_phone UNIQUE (phone);
 ALTER TABLE users ADD CONSTRAINT unique_email UNIQUE (email);
 
-
--- Add the date created table
-ALTER TABLE users ADD COLUMN
-date_of_birth DATE;
-
 -- Add student admission number on user profile
 ALTER TABLE userprofile ADD COLUMN
 admission_number VARCHAR(7) UNIQUE;
@@ -24,9 +19,9 @@ national_id VARCHAR(20);
 CREATE TABLE IF NOT EXISTS credentials (
   user_id uuid PRIMARY KEY,
   password TEXT NOT NULL,
-  last_login DATE NOT NULL DEFAULT CURRENT_DATE, 
-  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE,
+  last_login TIMESTAMPTZ NOT NULL DEFAULT NOW(), 
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT fk_user
   FOREIGN KEY(user_id) REFERENCES users(id)

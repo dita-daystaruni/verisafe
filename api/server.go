@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 )
@@ -40,6 +41,12 @@ func NewServer() (*Server, error) {
 
 // Runs the server
 func (s *Server) RunServer() {
-  RegisterHandlers(s)
+	carbon.SetDefault(carbon.Default{
+		Layout:       "2006-01-02T15:04:05.999999",
+		Timezone:     carbon.UTC,
+		WeekStartsAt: carbon.Sunday,
+		Locale:       "en", // value range: translate file name in the lang directory, excluding file suffix
+	})
+	RegisterHandlers(s)
 	s.Run(fmt.Sprintf(":%d", s.AppConfig.Port))
 }

@@ -50,8 +50,8 @@ commit
 ;
 
 -- name: CreateUser :one
-INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id, date_of_birth)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO users (username, firstname, othernames, phone, email, gender, national_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: CreateUserCredentials :one
@@ -68,8 +68,8 @@ UPDATE credentials
   RETURNING *;
 
 -- name: CreateUserProfile :one
-INSERT INTO userprofile (user_id,admission_number, bio,campus, profile_picture_url)
-VALUES($1,$2,$3,$4,'no-profile')
+INSERT INTO userprofile (user_id,admission_number, bio,campus,date_of_birth, profile_picture_url)
+VALUES($1,$2,$3,$4,$5,'no-profile')
 RETURNING *;
 
 -- name: UpdateUserProfile :one

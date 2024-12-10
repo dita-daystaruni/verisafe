@@ -11,8 +11,8 @@ CREATE TABLE users(
   email VARCHAR(128),
   gender VARCHAR(10) DEFAULT 'unknown',
   active BOOLEAN DEFAULT true,
-  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Creating user index
@@ -24,12 +24,14 @@ CREATE TABLE userprofile(
   user_id uuid PRIMARY KEY,
   bio TEXT,
   vibe_points INT NOT NULL DEFAULT 0,
+  date_of_birth DATE NOT NULL DEFAULT NOW(),
   profile_picture_url TEXT NOT NULL,
-  last_seen DATE NOT NULL DEFAULT CURRENT_DATE,
-  created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-  modified_at DATE NOT NULL DEFAULT CURRENT_DATE,
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT fk_user
   FOREIGN KEY(user_id) REFERENCES users(id)
   ON DELETE CASCADE
 );
+

@@ -5,43 +5,42 @@
 package repository
 
 import (
-	"time"
-
+	carbon "github.com/dromara/carbon/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Credential struct {
-	UserID     uuid.UUID `json:"user_id"`
-	Password   string    `json:"password"`
-	LastLogin  time.Time `json:"last_login"`
-	CreatedAt  time.Time `json:"created_at"`
-	ModifiedAt time.Time `json:"modified_at"`
+	UserID     uuid.UUID     `json:"user_id"`
+	Password   string        `json:"password"`
+	LastLogin  carbon.Carbon `json:"last_login"`
+	CreatedAt  carbon.Carbon `json:"created_at"`
+	ModifiedAt carbon.Carbon `json:"modified_at"`
 }
 
 type LoginInfo struct {
-	UserID          uuid.UUID   `json:"user_id"`
-	Username        string      `json:"username"`
-	Email           pgtype.Text `json:"email"`
-	Password        string      `json:"password"`
-	LastLogin       time.Time   `json:"last_login"`
-	AdmissionNumber pgtype.Text `json:"admission_number"`
+	UserID          uuid.UUID     `json:"user_id"`
+	Username        string        `json:"username"`
+	Email           pgtype.Text   `json:"email"`
+	Password        string        `json:"password"`
+	LastLogin       carbon.Carbon `json:"last_login"`
+	AdmissionNumber pgtype.Text   `json:"admission_number"`
 }
 
 type Permission struct {
-	ID          int32       `json:"id"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
-	CreatedAt   time.Time   `json:"created_at"`
-	ModifiedAt  time.Time   `json:"modified_at"`
+	ID          int32         `json:"id"`
+	Name        string        `json:"name"`
+	Description pgtype.Text   `json:"description"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
 }
 
 type Role struct {
-	ID          int32       `json:"id"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
-	CreatedAt   time.Time   `json:"created_at"`
-	ModifiedAt  time.Time   `json:"modified_at"`
+	ID          int32         `json:"id"`
+	Name        string        `json:"name"`
+	Description pgtype.Text   `json:"description"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
 }
 
 type RolePermission struct {
@@ -50,25 +49,24 @@ type RolePermission struct {
 }
 
 type User struct {
-	ID          uuid.UUID   `json:"id"`
-	Username    string      `json:"username"`
-	Firstname   string      `json:"firstname"`
-	Othernames  string      `json:"othernames"`
-	Phone       pgtype.Text `json:"phone"`
-	Email       pgtype.Text `json:"email"`
-	Gender      pgtype.Text `json:"gender"`
-	Active      pgtype.Bool `json:"active"`
-	CreatedAt   time.Time   `json:"created_at"`
-	ModifiedAt  time.Time   `json:"modified_at"`
-	DateOfBirth pgtype.Date `json:"date_of_birth"`
-	NationalID  pgtype.Text `json:"national_id"`
+	ID         uuid.UUID     `json:"id"`
+	Username   string        `json:"username"`
+	Firstname  string        `json:"firstname"`
+	Othernames string        `json:"othernames"`
+	Phone      pgtype.Text   `json:"phone"`
+	Email      pgtype.Text   `json:"email"`
+	Gender     pgtype.Text   `json:"gender"`
+	Active     pgtype.Bool   `json:"active"`
+	CreatedAt  carbon.Carbon `json:"created_at"`
+	ModifiedAt carbon.Carbon `json:"modified_at"`
+	NationalID pgtype.Text   `json:"national_id"`
 }
 
 type UserRole struct {
-	UserID     uuid.UUID `json:"user_id"`
-	RoleID     int32     `json:"role_id"`
-	AssignedAt time.Time `json:"assigned_at"`
-	ModifiedAt time.Time `json:"modified_at"`
+	UserID     uuid.UUID     `json:"user_id"`
+	RoleID     int32         `json:"role_id"`
+	AssignedAt carbon.Carbon `json:"assigned_at"`
+	ModifiedAt carbon.Carbon `json:"modified_at"`
 }
 
 type UserRolePermission struct {
@@ -81,13 +79,14 @@ type UserRolePermission struct {
 }
 
 type Userprofile struct {
-	UserID            uuid.UUID   `json:"user_id"`
-	Bio               pgtype.Text `json:"bio"`
-	VibePoints        int32       `json:"vibe_points"`
-	ProfilePictureUrl string      `json:"profile_picture_url"`
-	LastSeen          time.Time   `json:"last_seen"`
-	CreatedAt         time.Time   `json:"created_at"`
-	ModifiedAt        time.Time   `json:"modified_at"`
-	AdmissionNumber   pgtype.Text `json:"admission_number"`
-	Campus            string      `json:"campus"`
+	UserID            uuid.UUID     `json:"user_id"`
+	Bio               pgtype.Text   `json:"bio"`
+	VibePoints        int32         `json:"vibe_points"`
+	DateOfBirth       carbon.Carbon `json:"date_of_birth"`
+	ProfilePictureUrl string        `json:"profile_picture_url"`
+	LastSeen          carbon.Carbon `json:"last_seen"`
+	CreatedAt         carbon.Carbon `json:"created_at"`
+	ModifiedAt        carbon.Carbon `json:"modified_at"`
+	AdmissionNumber   pgtype.Text   `json:"admission_number"`
+	Campus            string        `json:"campus"`
 }
