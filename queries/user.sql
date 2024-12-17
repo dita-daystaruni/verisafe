@@ -83,3 +83,5 @@ UPDATE userprofile
   WHERE user_id = $1
   RETURNING *;
 
+-- name: GetUserProfile :one
+SELECT * FROM userprofile WHERE user_id = $1;

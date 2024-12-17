@@ -32,6 +32,7 @@ func RegisterHandlers(s *Server) {
 
 			// User profiles
 			v2Users.POST("/profile/create", uh.CreateUserProfile)
+			v2Users.GET("/profile", mc.RequireValidToken, uh.GetUserProfile)
 			v2Users.PATCH("/profile/update", uh.UpdateUserProfile)
 		}
 		v2Credentials := v2.Group("/credentials")

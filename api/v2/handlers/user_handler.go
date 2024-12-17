@@ -51,6 +51,39 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, user)
 }
 
+// Requires a validated jwt token claim set in context
+func (uh *UserHandler) GetUserProfile(c *gin.Context) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	user_id, exists := c.Get("user_id")
+	if !exists {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": "Please check your token and retry",
+		})
+	}
+
+	id, err := uuid.Parse(user_id.(string))
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to parse user_id",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	profile, err := repo.GetUserProfile(c.Request.Context(), id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, profile)
+
+}
+
 func (uh *UserHandler) CreateUserProfile(c *gin.Context) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())

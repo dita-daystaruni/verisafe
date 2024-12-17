@@ -31,6 +31,14 @@ func (mc *MiddlewareConfig) RequireValidToken(c *gin.Context) {
 		return
 	}
 
-	c.Set("claims", claims)
+	// Extract and set the custom sub claims
+	user_id := (*claims)["user_id"].(string)
+	username := (*claims)["username"].(string)
+	email := (*claims)["email"].(string)
+
+	c.Set("claims", (*claims))
+	c.Set("user_id", user_id)
+	c.Set("username", username)
+	c.Set("email", email)
 	c.Next()
 }

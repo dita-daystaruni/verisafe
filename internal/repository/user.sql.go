@@ -340,6 +340,28 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
+const getUserProfile = `-- name: GetUserProfile :one
+SELECT user_id, bio, vibe_points, date_of_birth, profile_picture_url, last_seen, created_at, modified_at, admission_number, campus FROM userprofile WHERE user_id = $1
+`
+
+func (q *Queries) GetUserProfile(ctx context.Context, userID uuid.UUID) (Userprofile, error) {
+	row := q.db.QueryRow(ctx, getUserProfile, userID)
+	var i Userprofile
+	err := row.Scan(
+		&i.UserID,
+		&i.Bio,
+		&i.VibePoints,
+		&i.DateOfBirth,
+		&i.ProfilePictureUrl,
+		&i.LastSeen,
+		&i.CreatedAt,
+		&i.ModifiedAt,
+		&i.AdmissionNumber,
+		&i.Campus,
+	)
+	return i, err
+}
+
 const updateUserCredentials = `-- name: UpdateUserCredentials :one
 UPDATE credentials
   SET password = $2,
