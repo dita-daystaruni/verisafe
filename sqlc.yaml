@@ -2,7 +2,7 @@ version: "2"
 sql:
   - engine: "postgresql"
     schema: "./database/migrations"
-    queries: "./queries"
+    queries: "./database//queries"
     gen:
       go:
         emit_json_tags: true

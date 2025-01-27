@@ -68,8 +68,8 @@ UPDATE credentials
   RETURNING *;
 
 -- name: CreateUserProfile :one
-INSERT INTO userprofile (user_id,admission_number, bio,campus,date_of_birth, profile_picture_url)
-VALUES($1,$2,$3,$4,$5,'no-profile')
+INSERT INTO userprofile (user_id,admission_number, bio,date_of_birth, profile_picture_url)
+VALUES($1,$2,$3,$4,'no-profile')
 RETURNING *;
 
 -- name: UpdateUserProfile :one
@@ -78,10 +78,13 @@ UPDATE userprofile
   admission_number = COALESCE($2, admission_number),
   bio = COALESCE($3, bio),
   profile_picture_url = COALESCE($4, profile_picture_url),
-  campus = COALESCE($5, campus),
   modified_at = NOW()
   WHERE user_id = $1
   RETURNING *;
 
 -- name: GetUserProfile :one
-SELECT * FROM userprofile WHERE user_id = $1;
+select *
+from userprofile
+where user_id = $1
+;
+

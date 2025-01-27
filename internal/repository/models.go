@@ -10,6 +10,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Campus struct {
+	Cid             uuid.UUID   `json:"cid"`
+	CampusName      string      `json:"campus_name"`
+	CampusAddress   pgtype.Text `json:"campus_address"`
+	City            pgtype.Text `json:"city"`
+	County          pgtype.Text `json:"county"`
+	ZipCode         pgtype.Text `json:"zip_code"`
+	Country         pgtype.Text `json:"country"`
+	EstablishedYear pgtype.Int4 `json:"established_year"`
+	IsActive        pgtype.Bool `json:"is_active"`
+}
+
 type Credential struct {
 	UserID     uuid.UUID     `json:"user_id"`
 	Password   string        `json:"password"`
@@ -27,27 +39,6 @@ type LoginInfo struct {
 	AdmissionNumber pgtype.Text   `json:"admission_number"`
 }
 
-type Permission struct {
-	ID          int32         `json:"id"`
-	Name        string        `json:"name"`
-	Description pgtype.Text   `json:"description"`
-	CreatedAt   carbon.Carbon `json:"created_at"`
-	ModifiedAt  carbon.Carbon `json:"modified_at"`
-}
-
-type Role struct {
-	ID          int32         `json:"id"`
-	Name        string        `json:"name"`
-	Description pgtype.Text   `json:"description"`
-	CreatedAt   carbon.Carbon `json:"created_at"`
-	ModifiedAt  carbon.Carbon `json:"modified_at"`
-}
-
-type RolePermission struct {
-	RoleID       int32 `json:"role_id"`
-	PermissionID int32 `json:"permission_id"`
-}
-
 type User struct {
 	ID         uuid.UUID     `json:"id"`
 	Username   string        `json:"username"`
@@ -57,29 +48,14 @@ type User struct {
 	Email      pgtype.Text   `json:"email"`
 	Gender     pgtype.Text   `json:"gender"`
 	Active     pgtype.Bool   `json:"active"`
+	NationalID pgtype.Text   `json:"national_id"`
 	CreatedAt  carbon.Carbon `json:"created_at"`
 	ModifiedAt carbon.Carbon `json:"modified_at"`
-	NationalID pgtype.Text   `json:"national_id"`
-}
-
-type UserRole struct {
-	UserID     uuid.UUID     `json:"user_id"`
-	RoleID     int32         `json:"role_id"`
-	AssignedAt carbon.Carbon `json:"assigned_at"`
-	ModifiedAt carbon.Carbon `json:"modified_at"`
-}
-
-type UserRolePermission struct {
-	UserID         uuid.UUID   `json:"user_id"`
-	Username       string      `json:"username"`
-	Firstname      string      `json:"firstname"`
-	Othernames     string      `json:"othernames"`
-	RoleName       string      `json:"role_name"`
-	PermissionName pgtype.Text `json:"permission_name"`
 }
 
 type Userprofile struct {
 	UserID            uuid.UUID     `json:"user_id"`
+	AdmissionNumber   pgtype.Text   `json:"admission_number"`
 	Bio               pgtype.Text   `json:"bio"`
 	VibePoints        int32         `json:"vibe_points"`
 	DateOfBirth       carbon.Carbon `json:"date_of_birth"`
@@ -87,6 +63,4 @@ type Userprofile struct {
 	LastSeen          carbon.Carbon `json:"last_seen"`
 	CreatedAt         carbon.Carbon `json:"created_at"`
 	ModifiedAt        carbon.Carbon `json:"modified_at"`
-	AdmissionNumber   pgtype.Text   `json:"admission_number"`
-	Campus            string        `json:"campus"`
 }
