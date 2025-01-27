@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/internal/configs"
+	"github.com/dita-daystaruni/verisafe/internal/middlewares"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/dita-daystaruni/verisafe/internal/utils"
-	"github.com/dita-daystaruni/verisafe/middlewares"
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"

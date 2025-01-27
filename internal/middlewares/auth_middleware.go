@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
 )

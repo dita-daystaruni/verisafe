@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,10 +1,10 @@
-package api
+package app
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/dita-daystaruni/verisafe/configs"
+	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -42,7 +42,7 @@ func NewServer() (*Server, error) {
 // Runs the server
 func (s *Server) RunServer() {
 	carbon.SetDefault(carbon.Default{
-		Layout:       "2006-01-02T15:04:05.999999",
+		Layout:       carbon.ISO8601ZuluMicroLayout,
 		Timezone:     carbon.UTC,
 		WeekStartsAt: carbon.Sunday,
 		Locale:       "en", // value range: translate file name in the lang directory, excluding file suffix

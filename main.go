@@ -3,11 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/dita-daystaruni/verisafe/api"
+	"github.com/dita-daystaruni/verisafe/internal/app"
 )
 
 func main() {
-	server, err := api.NewServer()
+	server, err := app.NewServer()
+
 	if err != nil {
 		log.Fatal(err.Error())
 	}

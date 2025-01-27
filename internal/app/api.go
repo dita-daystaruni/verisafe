@@ -1,10 +1,10 @@
-package api
+package app
 
 import (
 	"net/http"
 
-	"github.com/dita-daystaruni/verisafe/api/v2/handlers"
-	"github.com/dita-daystaruni/verisafe/middlewares"
+	"github.com/dita-daystaruni/verisafe/internal/app/v2/handlers"
+	"github.com/dita-daystaruni/verisafe/internal/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +16,6 @@ func RegisterHandlers(s *Server) {
 	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config}
 	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config}
 	mc := middlewares.MiddlewareConfig{Cfg: s.Config}
-	rh := handlers.RoleHandler{Conn: s.Conn, Cfg: s.Config}
 
 	v2 := s.Group("/v2")
 	{
@@ -48,10 +47,4 @@ func RegisterHandlers(s *Server) {
 		v2Auth.POST("/authenticate", ah.Login)
 		v2Auth.GET("/logout", ah.Logout)
 	}
-	v2Roles := v2.Group("/roles")
-	{
-		v2Roles.POST("/create-role", rh.CreateRole)
-		v2Roles.GET("/all", rh.GetAllRoles)
-	}
-
 }
