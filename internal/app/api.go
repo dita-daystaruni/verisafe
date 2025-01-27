@@ -6,9 +6,15 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/app/v2/handlers"
 	"github.com/dita-daystaruni/verisafe/internal/middlewares"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func RegisterHandlers(s *Server) {
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+
+	s.Use(middlewares.LoggingMiddleware(logger))
+
 	s.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
 	})

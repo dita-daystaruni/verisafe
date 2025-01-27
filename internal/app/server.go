@@ -22,7 +22,7 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 
-	server := gin.Default()
+	server := gin.New()
 
 	conn, err := pgx.Connect(context.Background(), fmt.Sprintf(
 		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
