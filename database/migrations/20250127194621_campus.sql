@@ -7,7 +7,7 @@ select 'up SQL query'
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE campus (
-    cid UUID PRIMARY KEY DEFAULT gen_random_uuid(),        -- Unique ID for the campus using UUID
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),        -- Unique ID for the campus using UUID
     campus_name VARCHAR(255) NOT NULL,                      -- Name of the campus
     campus_address VARCHAR(255),                            -- Physical address of the campus
     city VARCHAR(100),                                      -- City where the campus is located
@@ -15,6 +15,7 @@ CREATE TABLE campus (
     zip_code VARCHAR(20),                                   -- Postal code
     country VARCHAR(100),                                   -- Country where the campus is located
     established_year INT,                                   -- Year the campus was established
+    picture_url TEXT,
     is_active BOOLEAN DEFAULT TRUE                          -- Whether the campus is currently active
 );
 

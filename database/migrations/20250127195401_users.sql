@@ -26,17 +26,20 @@ CREATE TABLE userprofile(
   admission_number VARCHAR(7) UNIQUE,
   bio TEXT,
   vibe_points INT NOT NULL DEFAULT 0,
-  date_of_birth DATE NOT NULL DEFAULT NOW(),
-  profile_picture_url TEXT NOT NULL,
-  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  date_of_birth DATE,
+  profile_picture_url TEXT DEFAULT NULL,
+  campus uuid,
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01',
 
+  CONSTRAINT fk_campus
+  FOREIGN KEY(campus) REFERENCES campus(id)
+  ON DELETE SET NULL,
   CONSTRAINT fk_user
   FOREIGN KEY(user_id) REFERENCES users(id)
   ON DELETE CASCADE
 );
-
 
 -- Create the credentials table
 CREATE TABLE IF NOT EXISTS credentials (
@@ -72,6 +75,14 @@ select 'down SQL query'
 ;
 
 DROP VIEW IF EXISTS login_info;
+
+-- Drop the trigger first
+DROP TRIGGER IF EXISTS after_user_insert ON users;
+
+-- Drop the function that was used by the trigger
+drop function if exists create_user_profile()
+;
+
 DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS userprofile;
 DROP TABLE IF EXISTS users;

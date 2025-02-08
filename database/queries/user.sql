@@ -6,7 +6,7 @@ limit 1
 ;
 
 -- name: GetUserByEmail :one
-select *
+select * 
 from users
 where email = $1
 limit 1
@@ -37,16 +37,13 @@ offset $2
 
 -- name: GetAllUsers :many
 select *
-from users
+from users u
 limit $1
 offset $2
 ;
-
 -- name: DeleteUser :exec
 delete from users
 where id = $1
-;
-commit
 ;
 
 -- name: CreateUser :one
@@ -69,7 +66,7 @@ UPDATE credentials
 
 -- name: CreateUserProfile :one
 INSERT INTO userprofile (user_id,admission_number, bio,date_of_birth, profile_picture_url)
-VALUES($1,$2,$3,$4,'no-profile')
+VALUES($1,$2,$3,$4, COALESCE($4, NULL))
 RETURNING *;
 
 -- name: UpdateUserProfile :one

@@ -93,6 +93,7 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) {
 	var userData repository.CreateUserProfileParams
 
 	if err := c.ShouldBindJSON(&userData); err != nil {
+		println(err.Error())
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error": "Please check your request body and try again",
 		})
@@ -302,8 +303,6 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
 		return
 	}
-
-	println(limit, offset)
 
 	users, err := repo.GetAllUsers(c.Request.Context(),
 		repository.GetAllUsersParams{

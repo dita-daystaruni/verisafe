@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/dita-daystaruni/verisafe/internal/configs"
-	"github.com/dita-daystaruni/verisafe/internal/middlewares"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/dromara/carbon/v2"
@@ -81,18 +79,18 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := middlewares.GenerateJWT(user, *ah.Cfg)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to assign token to user",
-			"details": err.Error(),
-		})
-		return
-
-	}
-
-	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
-
+	// token, err := middlewares.GenerateJWT(user, *ah.Cfg)
+	// if err != nil {
+	// 	c.IndentedJSON(http.StatusInternalServerError, gin.H{
+	// 		"error":   "Failed to assign token to user",
+	// 		"details": err.Error(),
+	// 	})
+	// 	return
+	//
+	// }
+	//
+	// c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
+	//
 	c.IndentedJSON(http.StatusOK, user)
 }
 
