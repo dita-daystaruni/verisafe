@@ -31,7 +31,7 @@ RETURNING *;
 
 
 -- name: GetCampusByID :one
-SELECT * FROM campus WHERE id = $1 LIMIT $2 OFFSET $3;
+SELECT * FROM campus WHERE id = $1;
 
 -- name: DeleteCampus :exec
 DELETE FROM campus

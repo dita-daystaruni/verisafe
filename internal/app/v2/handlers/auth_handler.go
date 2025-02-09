@@ -46,7 +46,7 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	err = utils.ComparePassword([]byte(creds.Password), []byte(authCreds.Password))
+	err = utils.ComparePassword([]byte(*creds.Password), []byte(*authCreds.Password))
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
 			"error": "Please check your username and password and try again",

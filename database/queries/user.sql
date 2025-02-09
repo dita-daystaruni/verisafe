@@ -1,23 +1,31 @@
 -- name: GetUserByID :one
-select *
+select users.*, sqlc.embed(userprofile), sqlc.embed(credentials)
 from users
-where id = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE id = $1
+LIMIT 1
 ;
 
 -- name: GetUserByEmail :one
-select * 
+select users.*, sqlc.embed(userprofile), sqlc.embed(credentials)
 from users
-where email = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE email = $1
+LIMIT 1
 ;
 
+
 -- name: GetUserByUsername :one
-select *
+select users.*, sqlc.embed(userprofile), sqlc.embed(credentials)
 from users
-where username = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE username = $1
+LIMIT 1
 ;
+
 
 -- name: GetActiveUsers :many
 select *
@@ -36,8 +44,10 @@ offset $2
 ;
 
 -- name: GetAllUsers :many
-select *
-from users u
+select users.*, sqlc.embed(userprofile), sqlc.embed(credentials)
+from users
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
 limit $1
 offset $2
 ;
@@ -66,7 +76,7 @@ UPDATE credentials
 
 -- name: CreateUserProfile :one
 INSERT INTO userprofile (user_id,admission_number, bio,date_of_birth, profile_picture_url)
-VALUES($1,$2,$3,$4, COALESCE($4, NULL))
+VALUES($1,$2,$3,$4, COALESCE(NULL, $5))
 RETURNING *;
 
 -- name: UpdateUserProfile :one

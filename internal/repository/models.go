@@ -25,7 +25,7 @@ type Campus struct {
 
 type Credential struct {
 	UserID     uuid.UUID     `json:"user_id"`
-	Password   string        `json:"password"`
+	Password   *string       `json:"password"`
 	LastLogin  carbon.Carbon `json:"last_login"`
 	CreatedAt  carbon.Carbon `json:"created_at"`
 	ModifiedAt carbon.Carbon `json:"modified_at"`
@@ -35,7 +35,7 @@ type LoginInfo struct {
 	UserID          uuid.UUID     `json:"user_id"`
 	Username        string        `json:"username"`
 	Email           pgtype.Text   `json:"email"`
-	Password        string        `json:"password"`
+	Password        *string       `json:"password"`
 	LastLogin       carbon.Carbon `json:"last_login"`
 	AdmissionNumber pgtype.Text   `json:"admission_number"`
 }
@@ -58,7 +58,7 @@ type Userprofile struct {
 	UserID            uuid.UUID     `json:"user_id"`
 	AdmissionNumber   pgtype.Text   `json:"admission_number"`
 	Bio               pgtype.Text   `json:"bio"`
-	VibePoints        int32         `json:"vibe_points"`
+	VibePoints        pgtype.Int4   `json:"vibe_points"`
 	DateOfBirth       pgtype.Date   `json:"date_of_birth"`
 	ProfilePictureUrl pgtype.Text   `json:"profile_picture_url"`
 	Campus            pgtype.UUID   `json:"campus"`

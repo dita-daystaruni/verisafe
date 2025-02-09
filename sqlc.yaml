@@ -16,10 +16,13 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+          - db_type: "text"
+            go_type:
+              type: "string"
+              pointer: true
           - db_type: "timestamptz"
             go_type:
               import: "github.com/dromara/carbon/v2"
-              # import: "time"
               type: "Carbon"
           - db_type: "date"
             go_type:

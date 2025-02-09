@@ -166,8 +166,8 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
 		return
 	}
 
-	if userCreds.Password != "" {
-		hashedPassword, err := utils.HashPassword(userCreds.Password)
+	if *userCreds.Password != "" {
+		hashedPassword, err := utils.HashPassword(*userCreds.Password)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to hash password please try again with different password",
@@ -175,7 +175,7 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
 			return
 		}
 
-		userCreds.Password = string(hashedPassword)
+		*userCreds.Password = string(hashedPassword)
 	}
 
 	creds, err := repo.CreateUserCredentials(c.Request.Context(), userCreds)
@@ -212,8 +212,8 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
 		return
 	}
 
-	if userCreds.Password != "" {
-		hashedPassword, err := utils.HashPassword(userCreds.Password)
+	if *userCreds.Password != "" {
+		hashedPassword, err := utils.HashPassword(*userCreds.Password)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to hash password please try again with different password",
@@ -221,7 +221,7 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
 			return
 		}
 
-		userCreds.Password = string(hashedPassword)
+		*userCreds.Password = string(hashedPassword)
 	}
 
 	creds, err := repo.UpdateUserCredentials(c.Request.Context(), userCreds)

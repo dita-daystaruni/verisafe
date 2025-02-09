@@ -113,17 +113,11 @@ func (q *Queries) GetAllCampuses(ctx context.Context, arg GetAllCampusesParams) 
 }
 
 const getCampusByID = `-- name: GetCampusByID :one
-SELECT id, campus_name, campus_address, city, county, zip_code, country, established_year, picture_url, is_active FROM campus WHERE id = $1 LIMIT $2 OFFSET $3
+SELECT id, campus_name, campus_address, city, county, zip_code, country, established_year, picture_url, is_active FROM campus WHERE id = $1
 `
 
-type GetCampusByIDParams struct {
-	ID     uuid.UUID `json:"id"`
-	Limit  int32     `json:"limit"`
-	Offset int32     `json:"offset"`
-}
-
-func (q *Queries) GetCampusByID(ctx context.Context, arg GetCampusByIDParams) (Campus, error) {
-	row := q.db.QueryRow(ctx, getCampusByID, arg.ID, arg.Limit, arg.Offset)
+func (q *Queries) GetCampusByID(ctx context.Context, id uuid.UUID) (Campus, error) {
+	row := q.db.QueryRow(ctx, getCampusByID, id)
 	var i Campus
 	err := row.Scan(
 		&i.ID,

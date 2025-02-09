@@ -64,7 +64,7 @@ RETURNING user_id, password, last_login, created_at, modified_at
 
 type CreateUserCredentialsParams struct {
 	UserID   uuid.UUID `json:"user_id"`
-	Password string    `json:"password"`
+	Password *string   `json:"password"`
 }
 
 func (q *Queries) CreateUserCredentials(ctx context.Context, arg CreateUserCredentialsParams) (Credential, error) {
@@ -82,7 +82,7 @@ func (q *Queries) CreateUserCredentials(ctx context.Context, arg CreateUserCrede
 
 const createUserProfile = `-- name: CreateUserProfile :one
 INSERT INTO userprofile (user_id,admission_number, bio,date_of_birth, profile_picture_url)
-VALUES($1,$2,$3,$4, COALESCE($4, NULL))
+VALUES($1,$2,$3,$4, COALESCE(NULL, $5))
 RETURNING user_id, admission_number, bio, vibe_points, date_of_birth, profile_picture_url, campus, last_seen, created_at, modified_at
 `
 
@@ -91,6 +91,7 @@ type CreateUserProfileParams struct {
 	AdmissionNumber pgtype.Text `json:"admission_number"`
 	Bio             pgtype.Text `json:"bio"`
 	DateOfBirth     pgtype.Date `json:"date_of_birth"`
+	Column5         interface{} `json:"column_5"`
 }
 
 func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error) {
@@ -99,6 +100,7 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 		arg.AdmissionNumber,
 		arg.Bio,
 		arg.DateOfBirth,
+		arg.Column5,
 	)
 	var i Userprofile
 	err := row.Scan(
@@ -172,8 +174,10 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-select id, username, firstname, othernames, phone, email, gender, active, national_id, created_at, modified_at
-from users u
+select users.id, users.username, users.firstname, users.othernames, users.phone, users.email, users.gender, users.active, users.national_id, users.created_at, users.modified_at, userprofile.user_id, userprofile.admission_number, userprofile.bio, userprofile.vibe_points, userprofile.date_of_birth, userprofile.profile_picture_url, userprofile.campus, userprofile.last_seen, userprofile.created_at, userprofile.modified_at, credentials.user_id, credentials.password, credentials.last_login, credentials.created_at, credentials.modified_at
+from users
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
 limit $1
 offset $2
 `
@@ -183,15 +187,31 @@ type GetAllUsersParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]User, error) {
+type GetAllUsersRow struct {
+	ID          uuid.UUID     `json:"id"`
+	Username    string        `json:"username"`
+	Firstname   string        `json:"firstname"`
+	Othernames  string        `json:"othernames"`
+	Phone       pgtype.Text   `json:"phone"`
+	Email       pgtype.Text   `json:"email"`
+	Gender      pgtype.Text   `json:"gender"`
+	Active      pgtype.Bool   `json:"active"`
+	NationalID  pgtype.Text   `json:"national_id"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
+	Userprofile Userprofile   `json:"userprofile"`
+	Credential  Credential    `json:"credential"`
+}
+
+func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]GetAllUsersRow, error) {
 	rows, err := q.db.Query(ctx, getAllUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []User{}
+	items := []GetAllUsersRow{}
 	for rows.Next() {
-		var i User
+		var i GetAllUsersRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
@@ -204,6 +224,21 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 			&i.NationalID,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.Userprofile.UserID,
+			&i.Userprofile.AdmissionNumber,
+			&i.Userprofile.Bio,
+			&i.Userprofile.VibePoints,
+			&i.Userprofile.DateOfBirth,
+			&i.Userprofile.ProfilePictureUrl,
+			&i.Userprofile.Campus,
+			&i.Userprofile.LastSeen,
+			&i.Userprofile.CreatedAt,
+			&i.Userprofile.ModifiedAt,
+			&i.Credential.UserID,
+			&i.Credential.Password,
+			&i.Credential.LastLogin,
+			&i.Credential.CreatedAt,
+			&i.Credential.ModifiedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -261,15 +296,33 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, username, firstname, othernames, phone, email, gender, active, national_id, created_at, modified_at 
+select users.id, users.username, users.firstname, users.othernames, users.phone, users.email, users.gender, users.active, users.national_id, users.created_at, users.modified_at, userprofile.user_id, userprofile.admission_number, userprofile.bio, userprofile.vibe_points, userprofile.date_of_birth, userprofile.profile_picture_url, userprofile.campus, userprofile.last_seen, userprofile.created_at, userprofile.modified_at, credentials.user_id, credentials.password, credentials.last_login, credentials.created_at, credentials.modified_at
 from users
-where email = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE email = $1
+LIMIT 1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
+type GetUserByEmailRow struct {
+	ID          uuid.UUID     `json:"id"`
+	Username    string        `json:"username"`
+	Firstname   string        `json:"firstname"`
+	Othernames  string        `json:"othernames"`
+	Phone       pgtype.Text   `json:"phone"`
+	Email       pgtype.Text   `json:"email"`
+	Gender      pgtype.Text   `json:"gender"`
+	Active      pgtype.Bool   `json:"active"`
+	NationalID  pgtype.Text   `json:"national_id"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
+	Userprofile Userprofile   `json:"userprofile"`
+	Credential  Credential    `json:"credential"`
+}
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (GetUserByEmailRow, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
-	var i User
+	var i GetUserByEmailRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -282,20 +335,53 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.NationalID,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.Userprofile.UserID,
+		&i.Userprofile.AdmissionNumber,
+		&i.Userprofile.Bio,
+		&i.Userprofile.VibePoints,
+		&i.Userprofile.DateOfBirth,
+		&i.Userprofile.ProfilePictureUrl,
+		&i.Userprofile.Campus,
+		&i.Userprofile.LastSeen,
+		&i.Userprofile.CreatedAt,
+		&i.Userprofile.ModifiedAt,
+		&i.Credential.UserID,
+		&i.Credential.Password,
+		&i.Credential.LastLogin,
+		&i.Credential.CreatedAt,
+		&i.Credential.ModifiedAt,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-select id, username, firstname, othernames, phone, email, gender, active, national_id, created_at, modified_at
+select users.id, users.username, users.firstname, users.othernames, users.phone, users.email, users.gender, users.active, users.national_id, users.created_at, users.modified_at, userprofile.user_id, userprofile.admission_number, userprofile.bio, userprofile.vibe_points, userprofile.date_of_birth, userprofile.profile_picture_url, userprofile.campus, userprofile.last_seen, userprofile.created_at, userprofile.modified_at, credentials.user_id, credentials.password, credentials.last_login, credentials.created_at, credentials.modified_at
 from users
-where id = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE id = $1
+LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+type GetUserByIDRow struct {
+	ID          uuid.UUID     `json:"id"`
+	Username    string        `json:"username"`
+	Firstname   string        `json:"firstname"`
+	Othernames  string        `json:"othernames"`
+	Phone       pgtype.Text   `json:"phone"`
+	Email       pgtype.Text   `json:"email"`
+	Gender      pgtype.Text   `json:"gender"`
+	Active      pgtype.Bool   `json:"active"`
+	NationalID  pgtype.Text   `json:"national_id"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
+	Userprofile Userprofile   `json:"userprofile"`
+	Credential  Credential    `json:"credential"`
+}
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
-	var i User
+	var i GetUserByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -308,20 +394,53 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.NationalID,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.Userprofile.UserID,
+		&i.Userprofile.AdmissionNumber,
+		&i.Userprofile.Bio,
+		&i.Userprofile.VibePoints,
+		&i.Userprofile.DateOfBirth,
+		&i.Userprofile.ProfilePictureUrl,
+		&i.Userprofile.Campus,
+		&i.Userprofile.LastSeen,
+		&i.Userprofile.CreatedAt,
+		&i.Userprofile.ModifiedAt,
+		&i.Credential.UserID,
+		&i.Credential.Password,
+		&i.Credential.LastLogin,
+		&i.Credential.CreatedAt,
+		&i.Credential.ModifiedAt,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-select id, username, firstname, othernames, phone, email, gender, active, national_id, created_at, modified_at
+select users.id, users.username, users.firstname, users.othernames, users.phone, users.email, users.gender, users.active, users.national_id, users.created_at, users.modified_at, userprofile.user_id, userprofile.admission_number, userprofile.bio, userprofile.vibe_points, userprofile.date_of_birth, userprofile.profile_picture_url, userprofile.campus, userprofile.last_seen, userprofile.created_at, userprofile.modified_at, credentials.user_id, credentials.password, credentials.last_login, credentials.created_at, credentials.modified_at
 from users
-where username = $1
-limit 1
+LEFT JOIN userprofile on userprofile.user_id = users.id
+LEFT JOIN credentials on credentials.user_id = users.id
+WHERE username = $1
+LIMIT 1
 `
 
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+type GetUserByUsernameRow struct {
+	ID          uuid.UUID     `json:"id"`
+	Username    string        `json:"username"`
+	Firstname   string        `json:"firstname"`
+	Othernames  string        `json:"othernames"`
+	Phone       pgtype.Text   `json:"phone"`
+	Email       pgtype.Text   `json:"email"`
+	Gender      pgtype.Text   `json:"gender"`
+	Active      pgtype.Bool   `json:"active"`
+	NationalID  pgtype.Text   `json:"national_id"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
+	Userprofile Userprofile   `json:"userprofile"`
+	Credential  Credential    `json:"credential"`
+}
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error) {
 	row := q.db.QueryRow(ctx, getUserByUsername, username)
-	var i User
+	var i GetUserByUsernameRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -334,6 +453,21 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.NationalID,
 		&i.CreatedAt,
 		&i.ModifiedAt,
+		&i.Userprofile.UserID,
+		&i.Userprofile.AdmissionNumber,
+		&i.Userprofile.Bio,
+		&i.Userprofile.VibePoints,
+		&i.Userprofile.DateOfBirth,
+		&i.Userprofile.ProfilePictureUrl,
+		&i.Userprofile.Campus,
+		&i.Userprofile.LastSeen,
+		&i.Userprofile.CreatedAt,
+		&i.Userprofile.ModifiedAt,
+		&i.Credential.UserID,
+		&i.Credential.Password,
+		&i.Credential.LastLogin,
+		&i.Credential.CreatedAt,
+		&i.Credential.ModifiedAt,
 	)
 	return i, err
 }
@@ -373,7 +507,7 @@ UPDATE credentials
 
 type UpdateUserCredentialsParams struct {
 	UserID    uuid.UUID     `json:"user_id"`
-	Password  string        `json:"password"`
+	Password  *string       `json:"password"`
 	LastLogin carbon.Carbon `json:"last_login"`
 }
 

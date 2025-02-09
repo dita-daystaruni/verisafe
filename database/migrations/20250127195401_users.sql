@@ -25,7 +25,7 @@ CREATE TABLE userprofile(
   user_id uuid PRIMARY KEY,
   admission_number VARCHAR(7) UNIQUE,
   bio TEXT,
-  vibe_points INT NOT NULL DEFAULT 0,
+  vibe_points INT DEFAULT 0,
   date_of_birth DATE,
   profile_picture_url TEXT DEFAULT NULL,
   campus uuid,
