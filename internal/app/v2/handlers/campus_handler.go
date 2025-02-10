@@ -239,6 +239,6 @@ func (ch *CampusHandler) DeleteCampus(c *gin.Context) (*ApiResponse, error) {
 
 	return &ApiResponse{
 			Result:     map[string]any{"message": "Campus deleted sucessfully"},
-			StatusCode: http.StatusOK},
+			StatusCode: http.StatusMovedPermanently},
 		nil
 }

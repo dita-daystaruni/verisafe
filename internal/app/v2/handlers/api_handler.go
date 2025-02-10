@@ -63,6 +63,15 @@ func HandleDBErrors(err error) (*ApiResponse, error) {
 					"Resource conflict",
 				),
 			}, nil
+		case "2350": // unique_violation
+			return &ApiResponse{
+				StatusCode: http.StatusConflict,
+				Result: FormatErrorResponse(
+					"Resource with the same unique identifier already exists",
+					"Resource conflict",
+				),
+			}, nil
+
 		}
 	}
 	return nil, err

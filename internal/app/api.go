@@ -19,27 +19,12 @@ func RegisterHandlers(s *Server) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config}
+	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config}
 	ch := handlers.CampusHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 
 	v2 := s.Group("/v2")
 	{
-		v2Users := v2.Group("/users")
-		{
-			v2Users.POST("/register", uh.RegisterUser)
-			v2Users.GET("/all", uh.GetAllUsers)
-			v2Users.GET("find/id/:id", uh.GetUserByID)
-			v2Users.GET("find/username/:username", uh.GetUserByUsername)
-			v2Users.GET("/active", uh.GetAllActiveUsers)
-			v2Users.GET("/inactive", uh.GetAllInActiveUsers)
-			v2Users.DELETE("/delete/:id", uh.DeleteUser)
-
-			// User profiles
-			v2Users.POST("/profile/create", uh.CreateUserProfile)
-			v2Users.GET("/profile", uh.GetUserProfile)
-			v2Users.PATCH("/profile/update", uh.UpdateUserProfile)
-		}
 		v2Credentials := v2.Group("/credentials")
 		{
 			v2Credentials.POST("/create", uh.CreateUserCredentials)
@@ -63,4 +48,22 @@ func RegisterHandlers(s *Server) {
 		v2Campus.PATCH("/update/:id", handlers.ApiAdapter(ch.UpdateCampus))
 		v2Campus.DELETE("/delete/:id", handlers.ApiAdapter(ch.DeleteCampus))
 	}
+
+	// users
+	v2Users := v2.Group("/users")
+	{
+		v2Users.POST("/register", handlers.ApiAdapter(uh.RegisterUser))
+		v2Users.GET("/all", handlers.ApiAdapter(uh.GetAllUsers))
+		v2Users.GET("find/id/:id", handlers.ApiAdapter(uh.GetUserByID))
+		v2Users.GET("find/username/:username", handlers.ApiAdapter(uh.GetUserByUsername))
+		v2Users.GET("/active", handlers.ApiAdapter(uh.GetAllActiveUsers))
+		v2Users.GET("/inactive", handlers.ApiAdapter(uh.GetAllInActiveUsers))
+		v2Users.DELETE("/delete/:id", handlers.ApiAdapter(uh.DeleteUser))
+
+		// User profiles
+		v2Users.POST("/profile/create", uh.CreateUserProfile)
+		v2Users.GET("/profile", uh.GetUserProfile)
+		v2Users.PATCH("/profile/update", uh.UpdateUserProfile)
+	}
+
 }
