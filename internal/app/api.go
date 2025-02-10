@@ -21,6 +21,7 @@ func RegisterHandlers(s *Server) {
 
 	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config}
 	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config}
+	ch := handlers.CampusHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 
 	v2 := s.Group("/v2")
 	{
@@ -51,5 +52,15 @@ func RegisterHandlers(s *Server) {
 	{
 		v2Auth.POST("/authenticate", ah.Login)
 		v2Auth.GET("/logout", ah.Logout)
+	}
+
+	// campus
+	v2Campus := v2.Group("/campus")
+	{
+		v2Campus.POST("/register", handlers.ApiAdapter(ch.RegisterCampus))
+		v2Campus.GET("/all", handlers.ApiAdapter(ch.GetAllCampuses))
+		v2Campus.GET("/:id", handlers.ApiAdapter(ch.GetCampusByID))
+		v2Campus.PATCH("/update/:id", handlers.ApiAdapter(ch.UpdateCampus))
+		v2Campus.DELETE("/delete/:id", handlers.ApiAdapter(ch.DeleteCampus))
 	}
 }

@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE campus (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),        -- Unique ID for the campus using UUID
-    campus_name VARCHAR(255) NOT NULL,                      -- Name of the campus
+    campus_name VARCHAR(255) UNIQUE NOT NULL,                      -- Name of the campus
     campus_address VARCHAR(255),                            -- Physical address of the campus
     city VARCHAR(100),                                      -- City where the campus is located
     county VARCHAR(100),                                    -- County or province

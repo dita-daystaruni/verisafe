@@ -17,14 +17,14 @@ OFFSET $2;
 -- name: UpdateCampusByID :one
 UPDATE campus
   SET  
-    campus_name = COALESCE(campus_name, $1),
-    campus_address = COALESCE(campus_address, $2),
-    city = COALESCE(city, $3),
-    county = COALESCE(county, $4),
-    zip_code = COALESCE(zip_code, $5),
-    country = COALESCE(country, $6),
-    established_year = COALESCE(established_year, $7),
-    picture_url = COALESCE(picture_url, $8)
+    campus_name = COALESCE($1, campus_name),
+    campus_address = COALESCE($2, campus_address),
+    city = COALESCE($3, city),
+    county = COALESCE($4, county),
+    zip_code = COALESCE($5, zip_code),
+    country = COALESCE($6, country),
+    established_year = COALESCE($7, established_year),
+    picture_url = COALESCE($8, picture_url)
   WHERE id = $9
 RETURNING *;
 
