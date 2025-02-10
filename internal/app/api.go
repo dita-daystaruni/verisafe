@@ -27,8 +27,8 @@ func RegisterHandlers(s *Server) {
 	{
 		v2Credentials := v2.Group("/credentials")
 		{
-			v2Credentials.POST("/create", uh.CreateUserCredentials)
-			v2Credentials.PATCH("/change-password", uh.UpdateUserCredentials)
+			v2Credentials.POST("/create", handlers.ApiAdapter(uh.CreateUserCredentials))
+			v2Credentials.PATCH("/change-password", handlers.ApiAdapter(uh.UpdateUserCredentials))
 		}
 
 	}
@@ -61,9 +61,9 @@ func RegisterHandlers(s *Server) {
 		v2Users.DELETE("/delete/:id", handlers.ApiAdapter(uh.DeleteUser))
 
 		// User profiles
-		v2Users.POST("/profile/create", uh.CreateUserProfile)
-		v2Users.GET("/profile", uh.GetUserProfile)
-		v2Users.PATCH("/profile/update", uh.UpdateUserProfile)
+		v2Users.POST("/profile/create", handlers.ApiAdapter(uh.CreateUserProfile))
+		v2Users.GET("/profile", handlers.ApiAdapter(uh.GetUserProfile))
+		v2Users.PATCH("/profile/update", handlers.ApiAdapter(uh.UpdateUserProfile))
 	}
 
 }

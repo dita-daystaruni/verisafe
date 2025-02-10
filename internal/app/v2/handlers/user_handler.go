@@ -264,7 +264,7 @@ func (uh *UserHandler) DeleteUser(c *gin.Context) (*ApiResponse, error) {
 }
 
 // Requires a validated jwt token claim set in context
-func (uh *UserHandler) GetUserProfile(c *gin.Context) {
+func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -279,24 +279,28 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) {
 
 	id, err := uuid.Parse(user_id.(string))
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to parse user_id",
-			"details": err.Error(),
-		})
-		return
+
+		return nil, errors.New("Please check your request user_id parameter and try that again")
+
 	}
 
 	profile, err := repo.GetUserProfile(c.Request.Context(), id)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    id,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
 	}
 
-	c.IndentedJSON(http.StatusOK, profile)
-
+	return &ApiResponse{StatusCode: http.StatusCreated, Result: profile}, nil
 }
 
-func (uh *UserHandler) CreateUserProfile(c *gin.Context) {
+func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -305,32 +309,34 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) {
 	var userData repository.CreateUserProfileParams
 
 	if err := c.ShouldBindJSON(&userData); err != nil {
-		println(err.Error())
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Please check your request body and try again",
-		})
-		return
+		return nil, errors.New("Please check your request json payload and try that again")
 	}
 	profile, err := repo.CreateUserProfile(c.Request.Context(), userData)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error creating user profile",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 	}
 	if err := tx.Commit(c.Request.Context()); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error committing transaction",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 
 	}
-	c.IndentedJSON(http.StatusCreated, profile)
+	return &ApiResponse{StatusCode: http.StatusCreated, Result: profile}, nil
 }
 
-func (uh *UserHandler) UpdateUserProfile(c *gin.Context) {
+func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -339,31 +345,37 @@ func (uh *UserHandler) UpdateUserProfile(c *gin.Context) {
 	var userData repository.UpdateUserProfileParams
 
 	if err := c.ShouldBindJSON(&userData); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Please check your request body and try again",
-		})
-		return
+
+		return nil, errors.New("Please check your request json payload and try that again")
 	}
 	profile, err := repo.UpdateUserProfile(c.Request.Context(), userData)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error updating user profile",
-			"details": err.Error(),
-		})
-		return
+
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 	}
 	if err := tx.Commit(c.Request.Context()); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error committing transaction",
-			"details": err.Error(),
-		})
-		return
 
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 	}
-	c.IndentedJSON(http.StatusOK, profile)
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: profile}, nil
 }
 
-func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
+func (uh *UserHandler) CreateUserCredentials(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -372,19 +384,20 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
 	var userCreds repository.CreateUserCredentialsParams
 
 	if err := c.ShouldBindJSON(&userCreds); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Please check your request body and try again",
-		})
-		return
+		return nil, errors.New("Please check your body JSON payload and try again")
 	}
 
 	if *userCreds.Password != "" {
 		hashedPassword, err := utils.HashPassword(*userCreds.Password)
 		if err != nil {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to hash password please try again with different password",
-			})
-			return
+			uh.Logger.WithFields(logrus.Fields{
+				"payload":    userCreds,
+				"timestamp":  time.Now(),
+				"client_ip":  c.ClientIP(),
+				"user_agent": c.Request.UserAgent(),
+			}).Error(err)
+
+			return nil, errors.New("Failed to hash your password please try again with a different password")
 		}
 
 		*userCreds.Password = string(hashedPassword)
@@ -392,24 +405,30 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) {
 
 	creds, err := repo.CreateUserCredentials(c.Request.Context(), userCreds)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error creating user credentials",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userCreds,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		HandleDBErrors(err)
 	}
 	if err := tx.Commit(c.Request.Context()); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error committing transaction",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userCreds,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 
 	}
-	c.IndentedJSON(http.StatusCreated, creds)
+	return &ApiResponse{StatusCode: http.StatusCreated, Result: creds}, nil
 }
 
-func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
+func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -418,19 +437,22 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
 	var userCreds repository.UpdateUserCredentialsParams
 
 	if err := c.ShouldBindJSON(&userCreds); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": "Please check your request body and try again",
-		})
-		return
+
+		return nil, errors.New("Please check your body JSON payload and try again")
 	}
 
 	if *userCreds.Password != "" {
 		hashedPassword, err := utils.HashPassword(*userCreds.Password)
 		if err != nil {
-			c.IndentedJSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to hash password please try again with different password",
-			})
-			return
+
+			uh.Logger.WithFields(logrus.Fields{
+				"payload":    userCreds,
+				"timestamp":  time.Now(),
+				"client_ip":  c.ClientIP(),
+				"user_agent": c.Request.UserAgent(),
+			}).Error(err)
+
+			return nil, errors.New("Failed to hash your password please try again with a different password")
 		}
 
 		*userCreds.Password = string(hashedPassword)
@@ -438,19 +460,26 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) {
 
 	creds, err := repo.UpdateUserCredentials(c.Request.Context(), userCreds)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error updating user credentials",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userCreds,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 	}
 	if err := tx.Commit(c.Request.Context()); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Error committing transaction",
-			"details": err.Error(),
-		})
-		return
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userCreds,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
 
 	}
-	c.IndentedJSON(http.StatusCreated, creds)
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: creds}, nil
 }
