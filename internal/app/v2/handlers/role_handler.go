@@ -9,6 +9,7 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
@@ -191,7 +192,7 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 	repo := repository.New(tx)
 
 	rawID := c.Param("id")
-	id, err :=strconv.Atoi(rawID)
+	id, err := strconv.Atoi(rawID)
 	if err != nil {
 		return nil, errors.New("Please specify a valid integer id")
 	}
@@ -223,4 +224,237 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 	return &ApiResponse{StatusCode: http.StatusMovedPermanently,
 		Result: map[string]any{"message": "role deleted successfully"}}, nil
 
+}
+
+func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	roleID, err := strconv.Atoi(c.Param("role_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer role_id")
+	}
+	permissionID, err := strconv.Atoi(c.Param("permission_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer permission_id")
+	}
+
+	err = repo.AssignPermissionToRole(c.Request.Context(), repository.AssignPermissionToRoleParams{
+		RoleID:       int32(roleID),
+		PermissionID: int32(permissionID),
+	})
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":       roleID,
+			"permission_id": permissionID,
+			"timestamp":     time.Now(),
+			"client_ip":     c.ClientIP(),
+			"user_agent":    c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":       roleID,
+			"permission_id": permissionID,
+			"timestamp":     time.Now(),
+			"client_ip":     c.ClientIP(),
+			"user_agent":    c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusCreated,
+		Result: map[string]any{"message": "Permission assigned to role successfully"}}, nil
+}
+
+func (rh *RoleHandler) RemovePermissionFromRole(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	roleID, err := strconv.Atoi(c.Param("role_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer role_id")
+	}
+	permissionID, err := strconv.Atoi(c.Param("permission_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer permission_id")
+	}
+
+	err = repo.RemovePermissionFromRole(c.Request.Context(), repository.RemovePermissionFromRoleParams{
+		RoleID:       int32(roleID),
+		PermissionID: int32(permissionID),
+	})
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":       roleID,
+			"permission_id": permissionID,
+			"timestamp":     time.Now(),
+			"client_ip":     c.ClientIP(),
+			"user_agent":    c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":       roleID,
+			"permission_id": permissionID,
+			"timestamp":     time.Now(),
+			"client_ip":     c.ClientIP(),
+			"user_agent":    c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK,
+		Result: map[string]any{"message": "Permission removed from role successfully"}}, nil
+}
+
+func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	roleID, err := strconv.Atoi(c.Param("role_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer role_id")
+	}
+
+	permissions, err := repo.ListPermissionsForRole(c.Request.Context(), int32(roleID))
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: permissions}, nil
+}
+
+func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	userID, err := uuid.Parse(c.Param("user_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid UUID for user_id")
+	}
+	roleID, err := strconv.Atoi(c.Param("role_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer role_id")
+	}
+
+	err = repo.AssignRoleToUser(c.Request.Context(), repository.AssignRoleToUserParams{
+		UserID: userID,
+		RoleID: int32(roleID),
+	})
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusCreated, Result: "Role assigned to user successfully"}, nil
+}
+
+func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	userID, err := uuid.Parse(c.Param("user_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid UUID for user_id")
+	}
+	roleID, err := strconv.Atoi(c.Param("role_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid integer role_id")
+	}
+
+	err = repo.RemoveRoleFromUser(c.Request.Context(), repository.RemoveRoleFromUserParams{
+		UserID: userID,
+		RoleID: int32(roleID),
+	})
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK,
+		Result: map[string]any{"message": "Role removed from user successfully"}}, nil
+}
+
+func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := rh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	userID, err := uuid.Parse(c.Param("user_id"))
+	if err != nil {
+		return nil, errors.New("Please provide a valid UUID for user_id")
+	}
+
+	roles, err := repo.ListRolesForUser(c.Request.Context(), userID)
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: roles}, nil
 }

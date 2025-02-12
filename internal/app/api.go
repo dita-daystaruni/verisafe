@@ -76,6 +76,14 @@ func RegisterHandlers(s *Server) {
 		v2roles.GET("/find/name/:name", handlers.ApiAdapter(rh.GetRoleByName))
 		v2roles.PATCH("/update", handlers.ApiAdapter(rh.UpdateRole))
 		v2roles.DELETE("/delete/:id", handlers.ApiAdapter(rh.DeleteRole))
+
+		v2roles.POST("/assign-permission/:role_id/:permission_id", handlers.ApiAdapter(rh.AssignPermissionToRole))
+		v2roles.DELETE("/remove-permission/:role_id/:permission_id", handlers.ApiAdapter(rh.RemovePermissionFromRole))
+		v2roles.GET("/permissions/:role_id", handlers.ApiAdapter(rh.ListPermissionsForRole))
+
+		v2roles.POST("/assign-role/:user_id/:role_id", handlers.ApiAdapter(rh.AssignRoleToUser))
+		v2roles.DELETE("/remove-role/:user_id/:role_id", handlers.ApiAdapter(rh.RemoveRoleFromUser))
+		v2roles.GET("/roles/:user_id", handlers.ApiAdapter(rh.ListRolesForUser))
 	}
 
 	v2permissions := v2.Group("/permissions")
