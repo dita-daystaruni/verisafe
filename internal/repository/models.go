@@ -40,6 +40,28 @@ type LoginInfo struct {
 	AdmissionNumber pgtype.Text   `json:"admission_number"`
 }
 
+type Permission struct {
+	ID             int32         `json:"id"`
+	PermissionName string        `json:"permission_name"`
+	CreatedAt      carbon.Carbon `json:"created_at"`
+	ModifiedAt     carbon.Carbon `json:"modified_at"`
+}
+
+type Role struct {
+	ID          int32         `json:"id"`
+	RoleName    string        `json:"role_name"`
+	Description pgtype.Text   `json:"description"`
+	CreatedAt   carbon.Carbon `json:"created_at"`
+	ModifiedAt  carbon.Carbon `json:"modified_at"`
+}
+
+type RolePermission struct {
+	RoleID       int32         `json:"role_id"`
+	PermissionID int32         `json:"permission_id"`
+	CreatedAt    carbon.Carbon `json:"created_at"`
+	ModifiedAt   carbon.Carbon `json:"modified_at"`
+}
+
 type User struct {
 	ID         uuid.UUID     `json:"id"`
 	Username   string        `json:"username"`
@@ -50,6 +72,13 @@ type User struct {
 	Gender     pgtype.Text   `json:"gender"`
 	Active     pgtype.Bool   `json:"active"`
 	NationalID pgtype.Text   `json:"national_id"`
+	CreatedAt  carbon.Carbon `json:"created_at"`
+	ModifiedAt carbon.Carbon `json:"modified_at"`
+}
+
+type UserRole struct {
+	UserID     uuid.UUID     `json:"user_id"`
+	RoleID     int32         `json:"role_id"`
 	CreatedAt  carbon.Carbon `json:"created_at"`
 	ModifiedAt carbon.Carbon `json:"modified_at"`
 }
