@@ -23,6 +23,7 @@ func RegisterHandlers(s *Server) {
 	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 	ch := handlers.CampusHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 	rh := handlers.RoleHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
+	ph := handlers.PermissionHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
 
 	v2 := s.Group("/v2")
 	{
@@ -75,6 +76,15 @@ func RegisterHandlers(s *Server) {
 		v2roles.GET("/find/name/:name", handlers.ApiAdapter(rh.GetRoleByName))
 		v2roles.PATCH("/update", handlers.ApiAdapter(rh.UpdateRole))
 		v2roles.DELETE("/delete/:id", handlers.ApiAdapter(rh.DeleteRole))
+	}
+
+	v2permissions := v2.Group("/permissions")
+	{
+		v2permissions.POST("/create/:name", handlers.ApiAdapter(ph.RegisterPermission))
+		v2permissions.GET("/all", handlers.ApiAdapter(ph.GetAllPermissions))
+		v2permissions.GET("/find/:id", handlers.ApiAdapter(ph.GetPermissionByID))
+		v2permissions.PATCH("/update", handlers.ApiAdapter(ph.UpdatePermission))
+		v2permissions.DELETE("/delete/:id", handlers.ApiAdapter(ph.DeletePermission))
 	}
 
 }
