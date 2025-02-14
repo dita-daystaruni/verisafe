@@ -29,6 +29,9 @@ func (q *Queries) AssignPermissionToRole(ctx context.Context, arg AssignPermissi
 }
 
 const assignRoleToUser = `-- name: AssignRoleToUser :exec
+
+
+
 INSERT INTO user_roles (user_id, role_id, created_at, modified_at)
 VALUES ($1, $2, NOW(), NOW())
 `
@@ -38,6 +41,11 @@ type AssignRoleToUserParams struct {
 	RoleID int32     `json:"role_id"`
 }
 
+// GROUP BY rp.role_id,rp.permission_id,roles.id;
+// SELECT p.id, p.permission_name, rp.created_at, rp.modified_at
+// FROM role_permissions rp
+// JOIN permissions p ON rp.permission_id = p.id
+// WHERE rp.role_id = $1;
 func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserParams) error {
 	_, err := q.db.Exec(ctx, assignRoleToUser, arg.UserID, arg.RoleID)
 	return err
@@ -250,19 +258,29 @@ func (q *Queries) ListAllRoles(ctx context.Context, arg ListAllRolesParams) ([]R
 }
 
 const listPermissionsForRole = `-- name: ListPermissionsForRole :many
-SELECT p.id, p.permission_name, rp.created_at, rp.modified_at
+SELECT rp.role_id, rp.permission_id, rp.created_at, rp.modified_at, roles.id, roles.role_name, roles.description, roles.created_at, roles.modified_at, permissions.id, permissions.permission_name, permissions.created_at, permissions.modified_at
 FROM role_permissions rp
-JOIN permissions p ON rp.permission_id = p.id
+JOIN roles ON rp.role_id = roles.id
+JOIN permissions ON rp.permission_id = permissions.id
 WHERE rp.role_id = $1
+GROUP BY 
+permissions.id
 `
 
 type ListPermissionsForRoleRow struct {
-	ID             int32         `json:"id"`
-	PermissionName string        `json:"permission_name"`
-	CreatedAt      carbon.Carbon `json:"created_at"`
-	ModifiedAt     carbon.Carbon `json:"modified_at"`
+	RoleID       int32         `json:"role_id"`
+	PermissionID int32         `json:"permission_id"`
+	CreatedAt    carbon.Carbon `json:"created_at"`
+	ModifiedAt   carbon.Carbon `json:"modified_at"`
+	ID           int32         `json:"id"`
+	RoleName     string        `json:"role_name"`
+	Description  pgtype.Text   `json:"description"`
+	CreatedAt_2  carbon.Carbon `json:"created_at_2"`
+	ModifiedAt_2 carbon.Carbon `json:"modified_at_2"`
+	Permission   Permission    `json:"permission"`
 }
 
+// p.permission_id, rp.role_id, roles.id,
 func (q *Queries) ListPermissionsForRole(ctx context.Context, roleID int32) ([]ListPermissionsForRoleRow, error) {
 	rows, err := q.db.Query(ctx, listPermissionsForRole, roleID)
 	if err != nil {
@@ -273,10 +291,19 @@ func (q *Queries) ListPermissionsForRole(ctx context.Context, roleID int32) ([]L
 	for rows.Next() {
 		var i ListPermissionsForRoleRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.PermissionName,
+			&i.RoleID,
+			&i.PermissionID,
 			&i.CreatedAt,
 			&i.ModifiedAt,
+			&i.ID,
+			&i.RoleName,
+			&i.Description,
+			&i.CreatedAt_2,
+			&i.ModifiedAt_2,
+			&i.Permission.ID,
+			&i.Permission.PermissionName,
+			&i.Permission.CreatedAt,
+			&i.Permission.ModifiedAt,
 		); err != nil {
 			return nil, err
 		}

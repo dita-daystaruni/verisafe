@@ -9,6 +9,6 @@ RUN mkdir -p /app/uploads
 #Install the go modules
 RUN go mod tidy
 #Run app
-CMD ["go", "run", "cmd/main.go"]
+CMD ["go", "run", "main.go"]
 
-EXPOSE 8000
+EXPOSE 3000

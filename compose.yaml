@@ -1,32 +1,43 @@
 services:
   verisafe:
-    image: deetar/verisafe
+    build:
+      context: .
+    container_name: verisafe
+    environment:
+      PORT: ${VERISAFE_PORT}
+    env_file:
+      - ./.env
     ports:
       - "${VERISAFE_PORT}:${VERISAFE_PORT}"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
-      - app_network
-    env_file:
-      - .env  # Specify the .env file
+      - verisafe_network
     volumes:
       - uploads:/app/uploads
 
   postgres:
     image: postgres:latest
+    container_name: verisafe_db
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: [CMD-SHELL, "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5431:5432"
+      - ${DB_PORT}:${DB_PORT}
     networks:
-      - app_network
+      - verisafe_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
 networks:
-  app_network:
+  verisafe_network:
     driver: bridge
 
 volumes:

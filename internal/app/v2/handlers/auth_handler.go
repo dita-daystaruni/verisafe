@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/internal/configs"
+	"github.com/dita-daystaruni/verisafe/internal/middlewares"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/dromara/carbon/v2"
@@ -94,19 +96,50 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
-	// token, err := middlewares.GenerateJWT(user, *ah.Cfg)
-	// if err != nil {
-	// 	c.IndentedJSON(http.StatusInternalServerError, gin.H{
-	// 		"error":   "Failed to assign token to user",
-	// 		"details": err.Error(),
-	// 	})
-	// 	return
-	//
-	// }
-	//
-	// c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
-	//
-	return &ApiResponse{StatusCode: http.StatusOK, Result: user}, nil
+	// Fetch roles and permissions for the user
+	roles, err := repo.ListRolesForUser(c.Request.Context(), user.ID)
+	if err != nil {
+		ah.Logger.WithFields(logrus.Fields{
+			"user_id":    user.ID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	permissions, err := repo.ListAllPermissions(c.Request.Context(), repository.ListAllPermissionsParams{})
+	if err != nil {
+		ah.Logger.WithFields(logrus.Fields{
+			"user_id":    user.ID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	// Generate JWT
+	token, err := middlewares.GenerateJWT(user, roles, permissions, *ah.Cfg)
+	if err != nil {
+		ah.Logger.WithFields(logrus.Fields{
+			"user_id":    user.ID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return &ApiResponse{StatusCode: http.StatusInternalServerError, Result: map[string]string{"error": "Failed to assign token to user"}}, nil
+	}
+
+	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: map[string]interface{}{
+		"user":  user,
+		"token": token,
+	}}, nil
 }
 
 // Removes the authorization header from the client
