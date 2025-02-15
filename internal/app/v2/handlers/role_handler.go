@@ -385,7 +385,10 @@ func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
-	return &ApiResponse{StatusCode: http.StatusCreated, Result: "Role assigned to user successfully"}, nil
+	return &ApiResponse{StatusCode: http.StatusCreated,
+			Result: map[string]any{"message": "Role assigned to user successfully"},
+		},
+		nil
 }
 
 func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) {
@@ -431,7 +434,7 @@ func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) 
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK,
-		Result: map[string]any{"message": "Role removed from user successfully"}}, nil
+		Result: map[string]any{"message": "Role revoked from user successfully"}}, nil
 }
 
 func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {

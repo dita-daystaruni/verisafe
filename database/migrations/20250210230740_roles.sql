@@ -35,9 +35,25 @@ CREATE TABLE role_permissions (
   PRIMARY KEY (role_id, permission_id)
 );
 
+CREATE VIEW role_permissions_view AS
+SELECT 
+    r.id AS role_id,
+    r.role_name,
+    p.id AS permission_id,
+    p.permission_name,
+    rp.created_at,
+    rp.modified_at
+FROM 
+    roles r
+JOIN 
+    role_permissions rp ON r.id = rp.role_id
+JOIN 
+    permissions p ON rp.permission_id = p.id;
+
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';
+DROP VIEW IF EXISTS role_permissions_view;
 DROP TABLE IF EXISTS role_permissions;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS permissions;

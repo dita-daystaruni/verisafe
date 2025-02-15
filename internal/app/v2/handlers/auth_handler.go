@@ -109,16 +109,28 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
-	permissions, err := repo.ListAllPermissions(c.Request.Context(), repository.ListAllPermissionsParams{})
-	if err != nil {
-		ah.Logger.WithFields(logrus.Fields{
-			"user_id":    user.ID,
-			"timestamp":  time.Now(),
-			"client_ip":  c.ClientIP(),
-			"user_agent": c.Request.UserAgent(),
-		}).Error(err)
+	permissions := make([]string, 0)
 
-		return HandleDBErrors(err)
+	// Loop through the roles extracting the role permissions
+	for _, role := range roles {
+		perms, err := repo.ListPermissionsForRole(c.Request.Context(),
+			role.ID,
+		)
+		if err != nil {
+			ah.Logger.WithFields(logrus.Fields{
+				"user_id":    user.ID,
+				"timestamp":  time.Now(),
+				"client_ip":  c.ClientIP(),
+				"user_agent": c.Request.UserAgent(),
+			}).Error(err)
+
+			return HandleDBErrors(err)
+		}
+
+		for _, perm := range perms {
+			permissions = append(permissions, perm.PermissionName)
+		}
+
 	}
 
 	// Generate JWT
@@ -131,14 +143,15 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 
-		return &ApiResponse{StatusCode: http.StatusInternalServerError, Result: map[string]string{"error": "Failed to assign token to user"}}, nil
+		return &ApiResponse{StatusCode: http.StatusInternalServerError,
+				Result: map[string]string{"error": "Failed to assign token to user"}},
+			nil
 	}
 
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: map[string]interface{}{
 		"user":  user,
-		"token": token,
 	}}, nil
 }
 

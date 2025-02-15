@@ -75,21 +75,8 @@ DELETE FROM role_permissions
 WHERE role_id = $1 AND permission_id = $2;
 
 -- name: ListPermissionsForRole :many
-SELECT rp.*, roles.*, sqlc.embed(permissions)
-FROM role_permissions rp
-JOIN roles ON rp.role_id = roles.id
-JOIN permissions ON rp.permission_id = permissions.id
-WHERE rp.role_id = $1
-GROUP BY 
---p.permission_id, rp.role_id, roles.id,
-permissions.id;
---GROUP BY rp.role_id,rp.permission_id,roles.id;
-
-
--- SELECT p.id, p.permission_name, rp.created_at, rp.modified_at
--- FROM role_permissions rp
--- JOIN permissions p ON rp.permission_id = p.id
--- WHERE rp.role_id = $1;
+SELECT * FROM role_permissions_view
+WHERE role_id = $1;
 
 -- name: AssignRoleToUser :exec
 INSERT INTO user_roles (user_id, role_id, created_at, modified_at)

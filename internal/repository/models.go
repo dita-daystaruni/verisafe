@@ -62,6 +62,15 @@ type RolePermission struct {
 	ModifiedAt   carbon.Carbon `json:"modified_at"`
 }
 
+type RolePermissionsView struct {
+	RoleID         int32         `json:"role_id"`
+	RoleName       string        `json:"role_name"`
+	PermissionID   int32         `json:"permission_id"`
+	PermissionName string        `json:"permission_name"`
+	CreatedAt      carbon.Carbon `json:"created_at"`
+	ModifiedAt     carbon.Carbon `json:"modified_at"`
+}
+
 type User struct {
 	ID         uuid.UUID     `json:"id"`
 	Username   string        `json:"username"`
