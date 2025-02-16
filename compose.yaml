@@ -36,6 +36,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migrations:
+    build:
+      context: .
+    container_name: verisafe_migrations
+    depends_on:
+      - postgres
+    entrypoint: ["goose", "up"]
+    environment:
+      - GOOSE_DRIVER=${GOOSE_DRIVER}
+      - GOOSE_DBSTRING=${GOOSE_DBSTRING}
+      - GOOSE_MIGRATION_DIR=${GOOSE_MIGRATION_DIR}
+    env_file:
+      - ./.env
+    volumes:
+      - ./database/migrations:/app/database/migrations
+    networks:
+      - verisafe_network
+
 networks:
   verisafe_network:
     driver: bridge
@@ -43,4 +61,4 @@ networks:
 volumes:
   postgres_data:
   uploads:
-  
+
