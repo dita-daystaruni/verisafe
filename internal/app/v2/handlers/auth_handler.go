@@ -150,9 +150,7 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	return &ApiResponse{StatusCode: http.StatusOK, Result: map[string]interface{}{
-		"user":  user,
-	}}, nil
+	return &ApiResponse{StatusCode: http.StatusOK, Result: user}, nil
 }
 
 // Removes the authorization header from the client

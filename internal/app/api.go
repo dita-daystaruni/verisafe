@@ -37,8 +37,12 @@ func RegisterHandlers(s *Server) {
 
 	v2Auth := v2.Group("/auth")
 	{
-		v2Auth.POST("/authenticate", handlers.ApiAdapter(ah.Login))
-		v2Auth.GET("/logout", handlers.ApiAdapter(ah.Logout))
+		v2Auth.POST("/authenticate",
+			handlers.ApiAdapter(ah.Login),
+		)
+		v2Auth.GET("/logout",
+			handlers.ApiAdapter(ah.Logout),
+		)
 	}
 
 	// campus

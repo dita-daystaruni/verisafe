@@ -2,10 +2,13 @@ package middlewares
 
 import (
 	"errors"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -64,10 +67,126 @@ func ValidateJWT(tokenString string, secret string) (*VerisafeClaims, error) {
 		return nil, errors.New("Invalid token you have. Create a valid one you must!")
 	}
 
+
 	// Check if the token is expired
-	if claims.ExpiresAt.Time.Before(time.Now()) {
+	if claims.RegisteredClaims.ExpiresAt.Time.Before(time.Now()) {
 		return nil, errors.New("Your token expired it is. Refresh it you must")
 	}
 
 	return claims, nil
+}
+
+// PermissionMiddleware checks if the user has the required permissions to access a resource
+func PermissionMiddleware(requiredPermissions []string, cfg *configs.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Extract the Authorization header
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			c.Abort()
+			return
+		}
+
+		// Split the Bearer token from the header
+		tokenString := strings.Split(authHeader, " ")[1]
+
+		// Validate and parse the JWT token
+		claims, err := ValidateJWT(tokenString, cfg.JWTConfig.ApiSecret)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
+
+		// Check if the user has the required permissions
+		hasPermission := false
+		for _, userPermission := range claims.Permissions {
+			for _, requiredPermission := range requiredPermissions {
+				if userPermission == requiredPermission {
+					hasPermission = true
+					break
+				}
+			}
+			if hasPermission {
+				break
+			}
+		}
+
+		if !hasPermission {
+			c.JSON(http.StatusForbidden,
+				gin.H{"error": "You do not have the required permissions to access this resource"},
+			)
+			c.Abort()
+			return
+		}
+
+		// User is authenticated and authorized, proceed with the request
+		c.Next()
+	}
+}
+
+func RoleAndPermissionMiddleware(requiredRoles []string,
+	requiredPermissions []string,
+	cfg configs.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Extract the Authorization header and validate the JWT token
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			c.Abort()
+			return
+		}
+
+		tokenString := strings.Split(authHeader, " ")[1]
+		claims, err := ValidateJWT(tokenString, cfg.JWTConfig.ApiSecret)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
+
+		// Check if the user has the required roles
+		hasRole := false
+		for _, userRole := range claims.Roles {
+			for _, requiredRole := range requiredRoles {
+				if userRole == requiredRole {
+					hasRole = true
+					break
+				}
+			}
+			if hasRole {
+				break
+			}
+		}
+
+		// If no required roles, return forbidden
+		if !hasRole {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have the required roles to access this resource"})
+			c.Abort()
+			return
+		}
+
+		// Check if the user has the required permissions
+		hasPermission := false
+		for _, userPermission := range claims.Permissions {
+			for _, requiredPermission := range requiredPermissions {
+				if userPermission == requiredPermission {
+					hasPermission = true
+					break
+				}
+			}
+			if hasPermission {
+				break
+			}
+		}
+
+		if !hasPermission {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have the required permissions to access this resource"})
+			c.Abort()
+			return
+		}
+
+		// Proceed with the request if roles and permissions are valid
+		c.Next()
+	}
 }
