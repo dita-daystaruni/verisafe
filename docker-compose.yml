@@ -1,6 +1,7 @@
 services:
   verisafe:
-    image: deetar/verisafe-clean:latest
+    build:
+      context: .
     container_name: verisafe
     depends_on:
       migrations:
