@@ -1,5 +1,5 @@
 # Base Image
-FROM golang:latest AS main
+FROM golang:latest
 
 # Copy all the app contents
 COPY . /app/
