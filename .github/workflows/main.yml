@@ -2,7 +2,9 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
+      - clean
 
 env:
   DOCKER_USERNAME: deetar
@@ -20,13 +22,22 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: deetar
-        password: DeetarDaystar@1
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASS }}
+
+    - name: Set Docker repository based on branch
+      id: set-repo
+      run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "IMAGE_TAG=deetar/verisafe:latest" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/clean" ]]; then
+          echo "IMAGE_TAG=deetar/verisafe-clean:latest" >> $GITHUB_ENV
+          fi
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: Dockerfile
-        push: true
-        tags: deetar/verisafe:latest
+              context: .
+              file: Dockerfile
+              push: true
+              tags: ${{ env.IMAGE_TAG }}

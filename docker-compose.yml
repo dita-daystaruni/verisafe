@@ -1,47 +1,47 @@
 services:
   verisafe:
-    build:
-      context: .
+    image: deetar/verisafe-clean:latest
     container_name: verisafe
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
     environment:
-      PORT: ${VERISAFE_PORT}
+      PORT: 3000
     env_file:
       - ./.env
     ports:
-      - "${VERISAFE_PORT}:${VERISAFE_PORT}"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - "3000:3000"
     networks:
       - verisafe_network
     volumes:
       - uploads:/app/uploads
+    # Ensure we restart when migrations finish
+    restart: on-failure
 
   postgres:
     image: postgres:latest
-    container_name: verisafe_db
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $DB_NAME
     healthcheck:
-      test: [CMD-SHELL, "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      test: [CMD-SHELL, "sh -c 'pg_isready -U verisafe -d verisafe'"]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - "5433:5432"
     networks:
       - verisafe_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   migrations:
-    build:
-      context: .
+    image: gomicro/goose:latest
     container_name: verisafe_migrations
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     entrypoint: ["goose", "up"]
     environment:
       - GOOSE_DRIVER=${GOOSE_DRIVER}
@@ -53,6 +53,8 @@ services:
       - ./database/migrations:/app/database/migrations
     networks:
       - verisafe_network
+    # Exit immediately after completion
+    restart: "no"
 
 networks:
   verisafe_network:
@@ -61,4 +63,3 @@ networks:
 volumes:
   postgres_data:
   uploads:
-
