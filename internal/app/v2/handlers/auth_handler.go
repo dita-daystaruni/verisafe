@@ -49,7 +49,9 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 
-		return nil, errors.New("Error retrieving user please register or try again later")
+		return &ApiResponse{http.StatusNotFound,
+			map[string]any{"message": "User not found, please consider registering into academia"},
+		}, nil
 	}
 
 	err = utils.ComparePassword([]byte(*creds.Password), []byte(*authCreds.Password))
@@ -61,7 +63,10 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 
-		return nil, errors.New("Please check your username and password and try again")
+		return &ApiResponse{http.StatusNotFound,
+			map[string]any{"message": "Please check your credentials and try that again"},
+		}, nil
+
 	}
 
 	// Write to the db login time

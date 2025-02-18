@@ -27,4 +27,4 @@ tmp/
 main
 uploads/
 *.log
-.idea
+.idea/
