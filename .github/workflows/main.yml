@@ -6,10 +6,6 @@ on:
       - main
       - clean
 
-env:
-  DOCKER_USERNAME: deetar
-  DOCKER_REPOSITORY: verisafe
-  IMAGE_TAG: latest
 
 jobs:
   build-and-push:
