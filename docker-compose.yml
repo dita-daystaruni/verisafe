@@ -21,9 +21,9 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: verisafe
+      POSTGRES_PASSWORD: verisafe
+      POSTGRES_DB: verisafe
     healthcheck:
       test: [CMD-SHELL, "sh -c 'pg_isready -U verisafe -d verisafe'"]
       interval: 10s
