@@ -24,7 +24,7 @@ jobs:
     - name: Set Docker repository based on branch
       id: set-repo
       run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
           echo "IMAGE_TAG=deetar/verisafe:latest" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/clean" ]]; then
           echo "IMAGE_TAG=deetar/verisafe-clean:latest" >> $GITHUB_ENV
