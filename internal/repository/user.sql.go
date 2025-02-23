@@ -87,11 +87,11 @@ RETURNING user_id, admission_number, bio, vibe_points, date_of_birth, profile_pi
 `
 
 type CreateUserProfileParams struct {
-	UserID          uuid.UUID   `json:"user_id"`
-	AdmissionNumber pgtype.Text `json:"admission_number"`
-	Bio             pgtype.Text `json:"bio"`
-	DateOfBirth     pgtype.Date `json:"date_of_birth"`
-	Column5         interface{} `json:"column_5"`
+	UserID          uuid.UUID          `json:"user_id"`
+	AdmissionNumber pgtype.Text        `json:"admission_number"`
+	Bio             pgtype.Text        `json:"bio"`
+	DateOfBirth     pgtype.Timestamptz `json:"date_of_birth"`
+	Column5         interface{}        `json:"column_5"`
 }
 
 func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (Userprofile, error) {

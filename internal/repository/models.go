@@ -93,14 +93,14 @@ type UserRole struct {
 }
 
 type Userprofile struct {
-	UserID            uuid.UUID     `json:"user_id"`
-	AdmissionNumber   pgtype.Text   `json:"admission_number"`
-	Bio               pgtype.Text   `json:"bio"`
-	VibePoints        pgtype.Int4   `json:"vibe_points"`
-	DateOfBirth       pgtype.Date   `json:"date_of_birth"`
-	ProfilePictureUrl pgtype.Text   `json:"profile_picture_url"`
-	Campus            pgtype.UUID   `json:"campus"`
-	LastSeen          carbon.Carbon `json:"last_seen"`
-	CreatedAt         carbon.Carbon `json:"created_at"`
-	ModifiedAt        carbon.Carbon `json:"modified_at"`
+	UserID            uuid.UUID          `json:"user_id"`
+	AdmissionNumber   pgtype.Text        `json:"admission_number"`
+	Bio               pgtype.Text        `json:"bio"`
+	VibePoints        pgtype.Int4        `json:"vibe_points"`
+	DateOfBirth       pgtype.Timestamptz `json:"date_of_birth"`
+	ProfilePictureUrl pgtype.Text        `json:"profile_picture_url"`
+	Campus            pgtype.UUID        `json:"campus"`
+	LastSeen          carbon.Carbon      `json:"last_seen"`
+	CreatedAt         carbon.Carbon      `json:"created_at"`
+	ModifiedAt        carbon.Carbon      `json:"modified_at"`
 }

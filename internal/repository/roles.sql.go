@@ -29,7 +29,6 @@ func (q *Queries) AssignPermissionToRole(ctx context.Context, arg AssignPermissi
 }
 
 const assignRoleToUser = `-- name: AssignRoleToUser :exec
-
 INSERT INTO user_roles (user_id, role_id, created_at, modified_at)
 VALUES ($1, $2, NOW(), NOW())
 `
@@ -39,10 +38,6 @@ type AssignRoleToUserParams struct {
 	RoleID int32     `json:"role_id"`
 }
 
-// SELECT p.id, p.permission_name, rp.created_at, rp.modified_at
-// FROM role_permissions rp
-// JOIN permissions p ON rp.permission_id = p.id
-// WHERE rp.role_id = $1;
 func (q *Queries) AssignRoleToUser(ctx context.Context, arg AssignRoleToUserParams) error {
 	_, err := q.db.Exec(ctx, assignRoleToUser, arg.UserID, arg.RoleID)
 	return err

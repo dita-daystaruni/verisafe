@@ -26,7 +26,7 @@ CREATE TABLE userprofile(
   admission_number VARCHAR(7) UNIQUE,
   bio TEXT,
   vibe_points INT DEFAULT 0,
-  date_of_birth DATE,
+  date_of_birth TIMESTAMPTZ,
   profile_picture_url TEXT DEFAULT NULL,
   campus uuid,
   last_seen TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01',

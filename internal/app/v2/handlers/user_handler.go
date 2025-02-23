@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,7 +43,23 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 
-		return HandleDBErrors(err)
+		if pgxErr, ok := err.(*pgconn.PgError); ok {
+			switch pgxErr.Code {
+			case "23505": // unique_violation
+				return &ApiResponse{
+					StatusCode: http.StatusConflict,
+					Result: FormatErrorResponse(
+						"You are already registered to academia. Consider logging in into the app instead",
+						"Resource conflict",
+					),
+				}, nil
+
+			default:
+				return HandleDBErrors(err)
+
+			}
+		}
+
 	}
 
 	if err := tx.Commit(c.Request.Context()); err != nil {
@@ -309,6 +326,13 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 	var userData repository.CreateUserProfileParams
 
 	if err := c.ShouldBindJSON(&userData); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
 		return nil, errors.New("Please check your request json payload and try that again")
 	}
 	profile, err := repo.CreateUserProfile(c.Request.Context(), userData)
