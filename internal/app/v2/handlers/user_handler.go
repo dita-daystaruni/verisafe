@@ -287,7 +287,7 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 
 	repo := repository.New(tx)
 
-	user_id, exists := c.Get("user_id")
+	user_id, exists := c.Get("id")
 	if !exists {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"error": "Please check your token and retry",
@@ -361,6 +361,45 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+
+	var userData repository.UpdateUserProfileParams
+
+	if err := c.ShouldBindJSON(&userData); err != nil {
+
+		return nil, errors.New("Please check your request json payload and try that again")
+	}
+	profile, err := repo.UpdateUserProfile(c.Request.Context(), userData)
+	if err != nil {
+
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+	if err := tx.Commit(c.Request.Context()); err != nil {
+
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    userData,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: profile}, nil
+}
+
+func (uh *UserHandler) UpdateUserProfilePhoto(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 

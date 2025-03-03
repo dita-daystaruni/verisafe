@@ -527,9 +527,8 @@ func (q *Queries) UpdateUserCredentials(ctx context.Context, arg UpdateUserCrede
 const updateUserProfile = `-- name: UpdateUserProfile :one
 UPDATE userprofile
   SET 
-  admission_number = COALESCE($2, admission_number),
-  bio = COALESCE($3, bio),
-  profile_picture_url = COALESCE($4, profile_picture_url),
+  bio = COALESCE($2, bio),
+  profile_picture_url = COALESCE($3, profile_picture_url),
   modified_at = NOW()
   WHERE user_id = $1
   RETURNING user_id, admission_number, bio, vibe_points, date_of_birth, profile_picture_url, campus, last_seen, created_at, modified_at
@@ -537,18 +536,43 @@ UPDATE userprofile
 
 type UpdateUserProfileParams struct {
 	UserID            uuid.UUID   `json:"user_id"`
-	AdmissionNumber   pgtype.Text `json:"admission_number"`
 	Bio               pgtype.Text `json:"bio"`
 	ProfilePictureUrl pgtype.Text `json:"profile_picture_url"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (Userprofile, error) {
-	row := q.db.QueryRow(ctx, updateUserProfile,
-		arg.UserID,
-		arg.AdmissionNumber,
-		arg.Bio,
-		arg.ProfilePictureUrl,
+	row := q.db.QueryRow(ctx, updateUserProfile, arg.UserID, arg.Bio, arg.ProfilePictureUrl)
+	var i Userprofile
+	err := row.Scan(
+		&i.UserID,
+		&i.AdmissionNumber,
+		&i.Bio,
+		&i.VibePoints,
+		&i.DateOfBirth,
+		&i.ProfilePictureUrl,
+		&i.Campus,
+		&i.LastSeen,
+		&i.CreatedAt,
+		&i.ModifiedAt,
 	)
+	return i, err
+}
+
+const updateUserProfilePicture = `-- name: UpdateUserProfilePicture :one
+UPDATE userprofile
+  SET 
+  profile_picture_url = COALESCE($2, profile_picture_url)
+  WHERE user_id = $1
+  RETURNING user_id, admission_number, bio, vibe_points, date_of_birth, profile_picture_url, campus, last_seen, created_at, modified_at
+`
+
+type UpdateUserProfilePictureParams struct {
+	UserID            uuid.UUID   `json:"user_id"`
+	ProfilePictureUrl pgtype.Text `json:"profile_picture_url"`
+}
+
+func (q *Queries) UpdateUserProfilePicture(ctx context.Context, arg UpdateUserProfilePictureParams) (Userprofile, error) {
+	row := q.db.QueryRow(ctx, updateUserProfilePicture, arg.UserID, arg.ProfilePictureUrl)
 	var i Userprofile
 	err := row.Scan(
 		&i.UserID,

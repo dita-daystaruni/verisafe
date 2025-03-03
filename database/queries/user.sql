@@ -82,12 +82,20 @@ RETURNING *;
 -- name: UpdateUserProfile :one
 UPDATE userprofile
   SET 
-  admission_number = COALESCE($2, admission_number),
-  bio = COALESCE($3, bio),
-  profile_picture_url = COALESCE($4, profile_picture_url),
+  bio = COALESCE($2, bio),
+  profile_picture_url = COALESCE($3, profile_picture_url),
   modified_at = NOW()
   WHERE user_id = $1
   RETURNING *;
+
+
+-- name: UpdateUserProfilePicture :one
+UPDATE userprofile
+  SET 
+  profile_picture_url = COALESCE($2, profile_picture_url)
+  WHERE user_id = $1
+  RETURNING *;
+
 
 -- name: GetUserProfile :one
 select *

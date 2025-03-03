@@ -68,8 +68,9 @@ func RegisterHandlers(s *Server) {
 
 		// User profiles
 		v2Users.POST("/profile/create", handlers.ApiAdapter(uh.CreateUserProfile))
-		v2Users.GET("/profile", handlers.ApiAdapter(uh.GetUserProfile))
+    v2Users.GET("/profile/:id", handlers.ApiAdapter(uh.GetUserProfile))
 		v2Users.PATCH("/profile/update", handlers.ApiAdapter(uh.UpdateUserProfile))
+		v2Users.PATCH("/profile/change-profile-picture", handlers.ApiAdapter(uh.UpdateUserProfile))
 	}
 
 	v2roles := v2.Group("/roles")
