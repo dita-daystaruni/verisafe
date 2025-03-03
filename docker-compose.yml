@@ -1,8 +1,6 @@
 services:
   verisafe:
-    build:
-      context: .
-    container_name: verisafe
+    image: deetar/verisafe-clean:latest
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -31,7 +29,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5433:5432"
+      - "5435:5432"
     networks:
       - verisafe_network
     volumes:
