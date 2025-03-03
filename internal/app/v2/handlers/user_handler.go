@@ -287,14 +287,9 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 
 	repo := repository.New(tx)
 
-	user_id, exists := c.Get("id")
-	if !exists {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"error": "Please check your token and retry",
-		})
-	}
+	user_id := c.Param("id")
 
-	id, err := uuid.Parse(user_id.(string))
+	id, err := uuid.Parse(user_id)
 	if err != nil {
 
 		return nil, errors.New("Please check your request user_id parameter and try that again")
@@ -314,7 +309,7 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 
 	}
 
-	return &ApiResponse{StatusCode: http.StatusCreated, Result: profile}, nil
+	return &ApiResponse{StatusCode: http.StatusOK, Result: profile}, nil
 }
 
 func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
