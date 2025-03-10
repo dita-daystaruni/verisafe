@@ -67,6 +67,9 @@ func ValidateJWT(tokenString string, secret string) (*VerisafeClaims, error) {
 		return nil, errors.New("Invalid token you have. Create a valid one you must!")
 	}
 
+	if claims.RegisteredClaims.ExpiresAt == nil {
+		return nil, errors.New("Seems your access token is malformed please relogin to continue")
+	}
 
 	// Check if the token is expired
 	if claims.RegisteredClaims.ExpiresAt.Time.Before(time.Now()) {
