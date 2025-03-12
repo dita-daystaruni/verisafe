@@ -59,45 +59,124 @@ func RegisterHandlers(s *Server) {
 	v2Users := v2.Group("/users")
 	{
 		v2Users.POST("/register", handlers.ApiAdapter(uh.RegisterUser))
-		v2Users.GET("/all", handlers.ApiAdapter(uh.GetAllUsers))
-		v2Users.GET("find/id/:id", handlers.ApiAdapter(uh.GetUserByID))
-		v2Users.GET("find/username/:username", handlers.ApiAdapter(uh.GetUserByUsername))
-		v2Users.GET("/active", handlers.ApiAdapter(uh.GetAllActiveUsers))
-		v2Users.GET("/inactive", handlers.ApiAdapter(uh.GetAllInActiveUsers))
-		v2Users.DELETE("/delete/:id", handlers.ApiAdapter(uh.DeleteUser))
+		v2Users.GET("/all",
+			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
+      handlers.ApiAdapter(uh.GetAllUsers),
+    )
+		v2Users.GET("find/id/:id",
+			middlewares.PermissionMiddleware([]string{"read:user"}, s.Config),
+      handlers.ApiAdapter(uh.GetUserByID),
+    )
+		v2Users.GET("find/username/:username",
+			middlewares.PermissionMiddleware([]string{"read:user"}, s.Config),
+      handlers.ApiAdapter(uh.GetUserByUsername),
+    )
+		v2Users.GET("/active",
+			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
+      handlers.ApiAdapter(uh.GetAllActiveUsers),
+    )
+		v2Users.GET("/inactive", 
+			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
+      handlers.ApiAdapter(uh.GetAllInActiveUsers),
+    )
+		v2Users.DELETE("/delete/:id",
+			middlewares.PermissionMiddleware([]string{"delete:user"}, s.Config),
+      handlers.ApiAdapter(uh.DeleteUser),
+    )
 
 		// User profiles
-		v2Users.POST("/profile/create", handlers.ApiAdapter(uh.CreateUserProfile))
-    v2Users.GET("/profile/:id", handlers.ApiAdapter(uh.GetUserProfile))
-		v2Users.PATCH("/profile/update", handlers.ApiAdapter(uh.UpdateUserProfile))
-		v2Users.PATCH("/profile/change-profile-picture", handlers.ApiAdapter(uh.UpdateUserProfile))
+		v2Users.POST("/profile/create",
+			middlewares.PermissionMiddleware([]string{"create:profile"}, s.Config),
+      handlers.ApiAdapter(uh.CreateUserProfile),
+    )
+		v2Users.GET("/profile/:id",
+			middlewares.PermissionMiddleware([]string{"read:profile"}, s.Config),
+      handlers.ApiAdapter(uh.GetUserProfile),
+    )
+		v2Users.PATCH("/profile/update",
+			middlewares.PermissionMiddleware([]string{"update:profile"}, s.Config),
+      handlers.ApiAdapter(uh.UpdateUserProfile),
+    )
+		v2Users.PATCH("/profile/change-profile-picture",
+			middlewares.PermissionMiddleware([]string{"update:profile"}, s.Config),
+      handlers.ApiAdapter(uh.UpdateUserProfile),
+    )
 	}
 
 	v2roles := v2.Group("/roles")
 	{
-		v2roles.POST("/create", handlers.ApiAdapter(rh.RegisterRole))
-		v2roles.GET("/all", handlers.ApiAdapter(rh.GetAllRoles))
-		v2roles.GET("/find/:id", handlers.ApiAdapter(rh.GetRoleByID))
-		v2roles.GET("/find/name/:name", handlers.ApiAdapter(rh.GetRoleByName))
-		v2roles.PATCH("/update", handlers.ApiAdapter(rh.UpdateRole))
-		v2roles.DELETE("/delete/:id", handlers.ApiAdapter(rh.DeleteRole))
+		v2roles.POST("/create",
+			middlewares.PermissionMiddleware([]string{"create:role"}, s.Config),
+			handlers.ApiAdapter(rh.RegisterRole),
+		)
 
-		v2roles.POST("/assign-permission/:role_id/:permission_id", handlers.ApiAdapter(rh.AssignPermissionToRole))
-		v2roles.DELETE("/remove-permission/:role_id/:permission_id", handlers.ApiAdapter(rh.RemovePermissionFromRole))
-		v2roles.GET("/permissions/:role_id", handlers.ApiAdapter(rh.ListPermissionsForRole))
+		v2roles.GET("/all",
+			middlewares.PermissionMiddleware([]string{"read:role"}, s.Config),
+			handlers.ApiAdapter(rh.GetAllRoles),
+		)
+		v2roles.GET("/find/:id",
+			middlewares.PermissionMiddleware([]string{"read:role"}, s.Config),
+			handlers.ApiAdapter(rh.GetRoleByID),
+		)
+		v2roles.GET("/find/name/:name",
+			middlewares.PermissionMiddleware([]string{"read:role"}, s.Config),
+			handlers.ApiAdapter(rh.GetRoleByName),
+		)
+		v2roles.PATCH("/update",
+			middlewares.PermissionMiddleware([]string{"update:role"}, s.Config),
+			handlers.ApiAdapter(rh.UpdateRole),
+		)
+		v2roles.DELETE("/delete/:id",
+			middlewares.PermissionMiddleware([]string{"delete:role"}, s.Config),
+			handlers.ApiAdapter(rh.DeleteRole),
+		)
 
-		v2roles.POST("/assign-role/:user_id/:role_id", handlers.ApiAdapter(rh.AssignRoleToUser))
-		v2roles.DELETE("/remove-role/:user_id/:role_id", handlers.ApiAdapter(rh.RemoveRoleFromUser))
+		v2roles.POST("/assign-permission/:role_id/:permission_id",
+			middlewares.PermissionMiddleware([]string{"create:role-permission-assignment"}, s.Config),
+			handlers.ApiAdapter(rh.AssignPermissionToRole),
+		)
+		v2roles.DELETE("/remove-permission/:role_id/:permission_id",
+			middlewares.PermissionMiddleware([]string{"delete:role-permission-assignment"}, s.Config),
+			handlers.ApiAdapter(rh.RemovePermissionFromRole),
+		)
+		v2roles.GET("/permissions/:role_id",
+			middlewares.PermissionMiddleware([]string{"read:role"}, s.Config),
+			handlers.ApiAdapter(rh.ListPermissionsForRole),
+		)
+
+		v2roles.POST("/assign-role/:user_id/:role_id",
+			middlewares.PermissionMiddleware([]string{"create:user-role-assignment"}, s.Config),
+			handlers.ApiAdapter(rh.AssignRoleToUser),
+		)
+		v2roles.DELETE("/remove-role/:user_id/:role_id",
+			middlewares.PermissionMiddleware([]string{"delete:user-role-assignment"}, s.Config),
+			handlers.ApiAdapter(rh.RemoveRoleFromUser),
+		)
 		v2roles.GET("/roles/:user_id", handlers.ApiAdapter(rh.ListRolesForUser))
 	}
 
 	v2permissions := v2.Group("/permissions")
 	{
-		v2permissions.POST("/create/:name", handlers.ApiAdapter(ph.RegisterPermission))
-		v2permissions.GET("/all", handlers.ApiAdapter(ph.GetAllPermissions))
-		v2permissions.GET("/find/:id", handlers.ApiAdapter(ph.GetPermissionByID))
-		v2permissions.PATCH("/update", handlers.ApiAdapter(ph.UpdatePermission))
-		v2permissions.DELETE("/delete/:id", handlers.ApiAdapter(ph.DeletePermission))
+		v2permissions.POST("/create/:name",
+			middlewares.PermissionMiddleware([]string{"create:permission"}, s.Config),
+			handlers.ApiAdapter(ph.RegisterPermission),
+		)
+		v2permissions.GET("/all",
+			middlewares.PermissionMiddleware([]string{"read:permission"}, s.Config),
+			handlers.ApiAdapter(ph.GetAllPermissions),
+		)
+		v2permissions.GET("/find/:id",
+			middlewares.PermissionMiddleware([]string{"read:permission"}, s.Config),
+			handlers.ApiAdapter(ph.GetPermissionByID),
+		)
+		v2permissions.PATCH("/update",
+			middlewares.PermissionMiddleware([]string{"update:permission"}, s.Config),
+			handlers.ApiAdapter(ph.UpdatePermission),
+		)
+		v2permissions.DELETE("/delete/:id",
+			middlewares.PermissionMiddleware([]string{"delete:permission"}, s.Config),
+			handlers.ApiAdapter(ph.DeletePermission),
+		)
 	}
 
 }
