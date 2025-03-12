@@ -179,4 +179,5 @@ func RegisterHandlers(s *Server) {
 		)
 	}
 
+	logger.WithFields(logrus.Fields{}).Info("Server started and running")
 }
