@@ -92,6 +92,18 @@ func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: roles}, nil
 }
 
@@ -119,6 +131,18 @@ func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    id,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: role}, nil
 
 }
@@ -141,6 +165,18 @@ func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    name,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: role}, nil
@@ -340,6 +376,18 @@ func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, err
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"role_id":    roleID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: permissions}, nil
 }
 
@@ -457,6 +505,18 @@ func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: roles}, nil
