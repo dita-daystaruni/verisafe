@@ -95,6 +95,16 @@ func (ch *CampusHandler) GetAllCampuses(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: campuses}, nil
 
 }
@@ -130,6 +140,16 @@ func (ch *CampusHandler) GetCampusByID(c *gin.Context) (*ApiResponse, error) {
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: campus}, nil

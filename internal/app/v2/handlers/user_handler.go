@@ -100,6 +100,16 @@ func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: user}, nil
 
 }
@@ -123,6 +133,17 @@ func (uh *UserHandler) GetUserByUsername(c *gin.Context) (*ApiResponse, error) {
 
 		return HandleDBErrors(err)
 	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: user}, nil
 }
 
@@ -157,6 +178,16 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) (*ApiResponse, error) {
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: users}, nil
@@ -194,6 +225,16 @@ func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) (*ApiResponse, error) {
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: users}, nil
@@ -305,6 +346,16 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 
+		return HandleDBErrors(err)
+
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
 		return HandleDBErrors(err)
 
 	}

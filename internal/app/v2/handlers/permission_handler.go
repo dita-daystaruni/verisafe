@@ -97,6 +97,16 @@ func (ph *PermissionHandler) GetAllPermissions(c *gin.Context) (*ApiResponse, er
 		return HandleDBErrors(err)
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
 	return &ApiResponse{StatusCode: http.StatusOK, Result: permissions}, nil
 }
 
@@ -122,6 +132,16 @@ func (ph *PermissionHandler) GetPermissionByID(c *gin.Context) (*ApiResponse, er
 		}).Error(err)
 
 		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
 	}
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: permission}, nil

@@ -153,6 +153,16 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 			nil
 	}
 
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		ah.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	return &ApiResponse{StatusCode: http.StatusOK, Result: user}, nil
