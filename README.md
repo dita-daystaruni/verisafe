@@ -65,3 +65,4 @@ VeriSafe is released under the MIT License. See the `LICENSE` file for details.
 
 Developed with passion for Daystar University students by the dedicated team at DITA Daystar Uni 🌟
 
+---
