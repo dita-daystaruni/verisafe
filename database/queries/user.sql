@@ -80,7 +80,7 @@ RETURNING *;
 UPDATE credentials
   SET password = $2,
   modified_at = NOW(),
-  last_login = COALESCE(last_login, $3)
+  last_login = COALESCE($3, last_login)
   WHERE user_id = $1
   RETURNING *;
 
