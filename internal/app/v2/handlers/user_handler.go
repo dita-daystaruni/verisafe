@@ -76,6 +76,66 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 	return &ApiResponse{StatusCode: http.StatusCreated, Result: user}, nil
 }
 
+func (uh *UserHandler) CountAllUsers(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	count, err := repo.GetAllUserCount(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "count all users",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+	return &ApiResponse{StatusCode: http.StatusOK, Result: map[string]any{"count": count}}, nil
+}
+
+func (uh *UserHandler) CountLoginCountsToday(c *gin.Context) (*ApiResponse, error) {
+	tx, _ := uh.Conn.Begin(c.Request.Context())
+	defer tx.Rollback(c.Request.Context())
+
+	repo := repository.New(tx)
+	count, err := repo.GetLoginCountsToday(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "count login counts today",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+
+		return HandleDBErrors(err)
+	}
+
+	if err := tx.Commit(c.Request.Context()); err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		}).Error(err)
+		return HandleDBErrors(err)
+
+	}
+
+	return &ApiResponse{StatusCode: http.StatusOK, Result: map[string]any{"count": count}}, nil
+
+}
+
 func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())

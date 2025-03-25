@@ -59,48 +59,57 @@ func RegisterHandlers(s *Server) {
 	v2Users := v2.Group("/users")
 	{
 		v2Users.POST("/register", handlers.ApiAdapter(uh.RegisterUser))
+		v2Users.GET("/count",
+			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
+			handlers.ApiAdapter(uh.CountAllUsers),
+		)
+		v2Users.GET("/count/logins",
+			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
+			handlers.ApiAdapter(uh.CountLoginCountsToday),
+		)
+
 		v2Users.GET("/all",
 			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
-      handlers.ApiAdapter(uh.GetAllUsers),
-    )
+			handlers.ApiAdapter(uh.GetAllUsers),
+		)
 		v2Users.GET("find/id/:id",
 			middlewares.PermissionMiddleware([]string{"read:user"}, s.Config),
-      handlers.ApiAdapter(uh.GetUserByID),
-    )
+			handlers.ApiAdapter(uh.GetUserByID),
+		)
 		v2Users.GET("find/username/:username",
 			middlewares.PermissionMiddleware([]string{"read:user"}, s.Config),
-      handlers.ApiAdapter(uh.GetUserByUsername),
-    )
+			handlers.ApiAdapter(uh.GetUserByUsername),
+		)
 		v2Users.GET("/active",
 			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
-      handlers.ApiAdapter(uh.GetAllActiveUsers),
-    )
-		v2Users.GET("/inactive", 
+			handlers.ApiAdapter(uh.GetAllActiveUsers),
+		)
+		v2Users.GET("/inactive",
 			middlewares.PermissionMiddleware([]string{"read:users"}, s.Config),
-      handlers.ApiAdapter(uh.GetAllInActiveUsers),
-    )
+			handlers.ApiAdapter(uh.GetAllInActiveUsers),
+		)
 		v2Users.DELETE("/delete/:id",
 			middlewares.PermissionMiddleware([]string{"delete:user"}, s.Config),
-      handlers.ApiAdapter(uh.DeleteUser),
-    )
+			handlers.ApiAdapter(uh.DeleteUser),
+		)
 
 		// User profiles
 		v2Users.POST("/profile/create",
 			middlewares.PermissionMiddleware([]string{"create:profile"}, s.Config),
-      handlers.ApiAdapter(uh.CreateUserProfile),
-    )
+			handlers.ApiAdapter(uh.CreateUserProfile),
+		)
 		v2Users.GET("/profile/:id",
 			middlewares.PermissionMiddleware([]string{"read:profile"}, s.Config),
-      handlers.ApiAdapter(uh.GetUserProfile),
-    )
+			handlers.ApiAdapter(uh.GetUserProfile),
+		)
 		v2Users.PATCH("/profile/update",
 			middlewares.PermissionMiddleware([]string{"update:profile"}, s.Config),
-      handlers.ApiAdapter(uh.UpdateUserProfile),
-    )
+			handlers.ApiAdapter(uh.UpdateUserProfile),
+		)
 		v2Users.PATCH("/profile/change-profile-picture",
 			middlewares.PermissionMiddleware([]string{"update:profile"}, s.Config),
-      handlers.ApiAdapter(uh.UpdateUserProfile),
-    )
+			handlers.ApiAdapter(uh.UpdateUserProfile),
+		)
 	}
 
 	v2roles := v2.Group("/roles")

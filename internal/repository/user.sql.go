@@ -173,6 +173,17 @@ func (q *Queries) GetActiveUsers(ctx context.Context, arg GetActiveUsersParams) 
 	return items, nil
 }
 
+const getAllUserCount = `-- name: GetAllUserCount :one
+SELECT COUNT(*) FROM users
+`
+
+func (q *Queries) GetAllUserCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getAllUserCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getAllUsers = `-- name: GetAllUsers :many
 select users.id, users.username, users.firstname, users.othernames, users.phone, users.email, users.gender, users.active, users.national_id, users.created_at, users.modified_at, userprofile.user_id, userprofile.admission_number, userprofile.bio, userprofile.vibe_points, userprofile.date_of_birth, userprofile.profile_picture_url, userprofile.campus, userprofile.last_seen, userprofile.created_at, userprofile.modified_at, credentials.user_id, credentials.password, credentials.last_login, credentials.created_at, credentials.modified_at
 from users
@@ -293,6 +304,19 @@ func (q *Queries) GetInActiveUsers(ctx context.Context, arg GetInActiveUsersPara
 		return nil, err
 	}
 	return items, nil
+}
+
+const getLoginCountsToday = `-- name: GetLoginCountsToday :one
+SELECT COUNT(*) 
+FROM login_info 
+WHERE DATE(last_login) = DATE(CURRENT_DATE)
+`
+
+func (q *Queries) GetLoginCountsToday(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getLoginCountsToday)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one

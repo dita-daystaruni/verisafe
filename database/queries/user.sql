@@ -27,6 +27,16 @@ LIMIT 1
 ;
 
 
+-- name: GetAllUserCount :one
+SELECT COUNT(*) FROM users;
+
+
+-- name: GetLoginCountsToday :one
+SELECT COUNT(*) 
+FROM login_info 
+WHERE DATE(last_login) = DATE(CURRENT_DATE);
+
+
 -- name: GetActiveUsers :many
 select *
 from users
