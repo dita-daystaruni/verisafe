@@ -24,7 +24,11 @@ type AuthHandler struct {
 
 func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := ah.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+	}()
 
 	repo := repository.New(tx)
 
@@ -160,7 +164,6 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 			"user_agent": c.Request.UserAgent(),
 		}).Error(err)
 		return HandleDBErrors(err)
-
 	}
 
 	c.Header("Authorization", fmt.Sprintf("Bearer %s", token))
