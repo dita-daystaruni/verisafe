@@ -24,7 +24,12 @@ type UserHandler struct {
 
 func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := uh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
