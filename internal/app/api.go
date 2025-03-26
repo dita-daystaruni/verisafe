@@ -95,7 +95,6 @@ func RegisterHandlers(s *Server) {
 
 		// User profiles
 		v2Users.POST("/profile/create",
-			middlewares.PermissionMiddleware([]string{"create:profile"}, s.Config),
 			handlers.ApiAdapter(uh.CreateUserProfile),
 		)
 		v2Users.GET("/profile/:id",
