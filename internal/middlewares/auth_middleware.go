@@ -85,19 +85,24 @@ func PermissionMiddleware(requiredPermissions []string, cfg *configs.Config) gin
 		// Extract the Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			return
 		}
 
+		var parts = strings.Split(authHeader, " ")
+		if len(parts) < 2 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Malformed Authorization header"})
+			return
+
+		}
+
 		// Split the Bearer token from the header
-		tokenString := strings.Split(authHeader, " ")[1]
+		tokenString := parts[1]
 
 		// Validate and parse the JWT token
 		claims, err := ValidateJWT(tokenString, cfg.JWTConfig.ApiSecret)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -116,10 +121,9 @@ func PermissionMiddleware(requiredPermissions []string, cfg *configs.Config) gin
 		}
 
 		if !hasPermission {
-			c.JSON(http.StatusForbidden,
+			c.AbortWithStatusJSON(http.StatusForbidden,
 				gin.H{"error": "You do not have the required permissions to access this resource"},
 			)
-			c.Abort()
 			return
 		}
 
@@ -135,16 +139,14 @@ func RoleAndPermissionMiddleware(requiredRoles []string,
 		// Extract the Authorization header and validate the JWT token
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			return
 		}
 
 		tokenString := strings.Split(authHeader, " ")[1]
 		claims, err := ValidateJWT(tokenString, cfg.JWTConfig.ApiSecret)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -184,8 +186,7 @@ func RoleAndPermissionMiddleware(requiredRoles []string,
 		}
 
 		if !hasPermission {
-			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have the required permissions to access this resource"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You do not have the required permissions to access this resource"})
 			return
 		}
 
