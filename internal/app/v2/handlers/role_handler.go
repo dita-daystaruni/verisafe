@@ -23,7 +23,12 @@ type RoleHandler struct {
 
 func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
@@ -61,7 +66,12 @@ func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	limitParam := c.DefaultQuery("limit", "10")
@@ -109,7 +119,12 @@ func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
@@ -149,7 +164,12 @@ func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
@@ -185,7 +205,12 @@ func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
@@ -223,7 +248,12 @@ func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 
@@ -264,7 +294,12 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	roleID, err := strconv.Atoi(c.Param("role_id"))
@@ -310,7 +345,12 @@ func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, err
 
 func (rh *RoleHandler) RemovePermissionFromRole(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	roleID, err := strconv.Atoi(c.Param("role_id"))
@@ -393,7 +433,12 @@ func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, err
 
 func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	userID, err := uuid.Parse(c.Param("user_id"))
@@ -441,7 +486,12 @@ func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 
 func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	userID, err := uuid.Parse(c.Param("user_id"))
@@ -487,7 +537,12 @@ func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) 
 
 func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
 	tx, _ := rh.Conn.Begin(c.Request.Context())
-	defer tx.Rollback(c.Request.Context())
+	defer func() {
+		if tx != nil {
+			tx.Rollback(c.Request.Context())
+		}
+
+	}()
 
 	repo := repository.New(tx)
 	userID, err := uuid.Parse(c.Param("user_id"))
