@@ -14,6 +14,7 @@ func RegisterHandlers(s *Server) {
 	logger.SetFormatter(&logrus.JSONFormatter{})
 
 	s.Use(middlewares.LoggingMiddleware(logger))
+	s.Use(middlewares.RecoveryMiddleware(logger))
 
 	s.GET("/ping", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "i'm alive!"})
