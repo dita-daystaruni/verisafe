@@ -17,7 +17,7 @@ func RegisterHandlers(s *Server) {
 	s.Use(middlewares.RecoveryMiddleware(logger))
 
 	s.GET("/ping", func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "i'm alive!"})
+		c.IndentedJSON(http.StatusOK, gin.H{"message": "He is risen"})
 	})
 
 	uh := handlers.UserHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
