@@ -10,19 +10,30 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
 type RoleHandler struct {
-	Conn   *pgx.Conn
+	Pool   *pgxpool.Pool
 	Cfg    *configs.Config
 	Logger *logrus.Logger
 }
 
 func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -65,7 +76,18 @@ func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -118,7 +140,18 @@ func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -163,7 +196,18 @@ func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -204,7 +248,18 @@ func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -247,7 +302,18 @@ func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -293,7 +359,18 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -344,7 +421,18 @@ func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, err
 }
 
 func (rh *RoleHandler) RemovePermissionFromRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -395,7 +483,18 @@ func (rh *RoleHandler) RemovePermissionFromRole(c *gin.Context) (*ApiResponse, e
 }
 
 func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -432,7 +531,18 @@ func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, err
 }
 
 func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -485,7 +595,18 @@ func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -536,7 +657,18 @@ func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) 
 }
 
 func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := rh.Conn.Begin(c.Request.Context())
+	poolConn, err := rh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		rh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())

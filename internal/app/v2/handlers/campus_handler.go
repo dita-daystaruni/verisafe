@@ -10,18 +10,29 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
 type CampusHandler struct {
-	Conn   *pgx.Conn
+	Pool   *pgxpool.Pool
 	Cfg    *configs.Config
 	Logger *logrus.Logger
 }
 
 func (ch *CampusHandler) RegisterCampus(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ch.Conn.Begin(c.Request.Context())
+	poolConn, err := ch.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -62,7 +73,18 @@ func (ch *CampusHandler) RegisterCampus(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (ch *CampusHandler) GetAllCampuses(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ch.Conn.Begin(c.Request.Context())
+	poolConn, err := ch.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -110,7 +132,18 @@ func (ch *CampusHandler) GetAllCampuses(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (ch *CampusHandler) GetCampusByID(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ch.Conn.Begin(c.Request.Context())
+	poolConn, err := ch.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -156,7 +189,18 @@ func (ch *CampusHandler) GetCampusByID(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (ch *CampusHandler) UpdateCampus(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ch.Conn.Begin(c.Request.Context())
+	poolConn, err := ch.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -215,7 +259,18 @@ func (ch *CampusHandler) UpdateCampus(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (ch *CampusHandler) DeleteCampus(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ch.Conn.Begin(c.Request.Context())
+	poolConn, err := ch.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ch.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)

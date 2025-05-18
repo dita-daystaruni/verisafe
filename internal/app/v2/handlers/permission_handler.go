@@ -9,13 +9,13 @@ import (
 
 	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dita-daystaruni/verisafe/internal/repository"
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/gin-gonic/gin"	
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
 type PermissionHandler struct {
-	Conn   *pgx.Conn
+	Pool   *pgxpool.Pool
 	Cfg    *configs.Config
 	Logger *logrus.Logger
 }
@@ -29,7 +29,18 @@ func IsValidPermissionName(permissionName string) bool {
 }
 
 func (ph *PermissionHandler) RegisterPermission(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ph.Conn.Begin(c.Request.Context())
+	poolConn, err := ph.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -65,7 +76,18 @@ func (ph *PermissionHandler) RegisterPermission(c *gin.Context) (*ApiResponse, e
 	return &ApiResponse{StatusCode: http.StatusCreated, Result: permission}, nil
 }
 func (ph *PermissionHandler) GetAllPermissions(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ph.Conn.Begin(c.Request.Context())
+	poolConn, err := ph.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -111,7 +133,18 @@ func (ph *PermissionHandler) GetAllPermissions(c *gin.Context) (*ApiResponse, er
 }
 
 func (ph *PermissionHandler) GetPermissionByID(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ph.Conn.Begin(c.Request.Context())
+	poolConn, err := ph.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -148,7 +181,18 @@ func (ph *PermissionHandler) GetPermissionByID(c *gin.Context) (*ApiResponse, er
 }
 
 func (ph *PermissionHandler) UpdatePermission(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ph.Conn.Begin(c.Request.Context())
+	poolConn, err := ph.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -190,7 +234,18 @@ func (ph *PermissionHandler) UpdatePermission(c *gin.Context) (*ApiResponse, err
 }
 
 func (ph *PermissionHandler) DeletePermission(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ph.Conn.Begin(c.Request.Context())
+	poolConn, err := ph.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ph.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)

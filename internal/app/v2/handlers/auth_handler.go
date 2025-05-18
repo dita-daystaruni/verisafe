@@ -12,18 +12,29 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
 type AuthHandler struct {
-	Conn   *pgx.Conn
+	Pool   *pgxpool.Pool
 	Cfg    *configs.Config
 	Logger *logrus.Logger
 }
 
 func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := ah.Conn.Begin(c.Request.Context())
+	poolConn, err := ah.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		ah.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())

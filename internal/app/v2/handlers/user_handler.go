@@ -11,19 +11,31 @@ import (
 	"github.com/dita-daystaruni/verisafe/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
 type UserHandler struct {
-	Conn   *pgx.Conn
+	Pool   *pgxpool.Pool
 	Cfg    *configs.Config
 	Logger *logrus.Logger
 }
 
 func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	// get a connection
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
 			tx.Rollback(c.Request.Context())
@@ -82,7 +94,18 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) CountAllUsers(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -111,7 +134,18 @@ func (uh *UserHandler) CountAllUsers(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) CountLoginCountsToday(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -142,7 +176,18 @@ func (uh *UserHandler) CountLoginCountsToday(c *gin.Context) (*ApiResponse, erro
 }
 
 func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -180,7 +225,18 @@ func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) GetUserByUsername(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -213,7 +269,18 @@ func (uh *UserHandler) GetUserByUsername(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) GetAllUsers(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -259,7 +326,18 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -307,7 +385,18 @@ func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -345,7 +434,18 @@ func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) (*ApiResponse, error)
 }
 
 func (uh *UserHandler) DeleteUser(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -388,7 +488,18 @@ func (uh *UserHandler) DeleteUser(c *gin.Context) (*ApiResponse, error) {
 
 // Requires a validated jwt token claim set in context
 func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -429,7 +540,18 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -472,7 +594,18 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -511,7 +644,18 @@ func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
 }
 
 func (uh *UserHandler) UpdateUserProfilePhoto(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -550,7 +694,18 @@ func (uh *UserHandler) UpdateUserProfilePhoto(c *gin.Context) (*ApiResponse, err
 }
 
 func (uh *UserHandler) CreateUserCredentials(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)
@@ -603,7 +758,18 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) (*ApiResponse, erro
 }
 
 func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) (*ApiResponse, error) {
-	tx, _ := uh.Conn.Begin(c.Request.Context())
+	poolConn, err := uh.Pool.Acquire(c.Request.Context())
+	if err != nil {
+		uh.Logger.WithFields(logrus.Fields{
+			"payload":    "failed to acquire pool connection",
+			"timestamp":  time.Now(),
+			"client_ip":  c.ClientIP(),
+			"user_agent": c.Request.UserAgent(),
+		})
+		return nil, err
+	}
+
+	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
 	repo := repository.New(tx)

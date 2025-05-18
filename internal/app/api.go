@@ -20,11 +20,11 @@ func RegisterHandlers(s *Server) {
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "i'm alive!"})
 	})
 
-	uh := handlers.UserHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
-	ah := handlers.AuthHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
-	ch := handlers.CampusHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
-	rh := handlers.RoleHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
-	ph := handlers.PermissionHandler{Conn: s.Conn, Cfg: s.Config, Logger: logger}
+	uh := handlers.UserHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
+	ah := handlers.AuthHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
+	ch := handlers.CampusHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
+	rh := handlers.RoleHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
+	ph := handlers.PermissionHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
 
 	v2 := s.Group("/v2")
 	{

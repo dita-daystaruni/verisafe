@@ -3,17 +3,18 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/dita-daystaruni/verisafe/internal/configs"
 	"github.com/dromara/carbon/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Server struct {
 	*gin.Engine
 	*configs.Config
-	*pgx.Conn
+	*pgxpool.Pool
 }
 
 func NewServer() (*Server, error) {
@@ -24,7 +25,7 @@ func NewServer() (*Server, error) {
 
 	gin.SetMode(gin.ReleaseMode)
 	server := gin.New()
-	conn, err := pgx.Connect(context.Background(), fmt.Sprintf(
+	dbConfig, err := pgxpool.ParseConfig(fmt.Sprintf(
 		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.DatabaseConfig.DatabaseUser,
 		cfg.DatabaseConfig.DatabasePassword,
@@ -36,7 +37,17 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 
-	return &Server{server, cfg, conn}, nil
+	dbConfig.MaxConns = 10
+	dbConfig.MinConns = 5
+	dbConfig.MaxConnLifetime = time.Hour
+
+	connPool, err := pgxpool.NewWithConfig(context.Background(), dbConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	
+	return &Server{server, cfg, connPool}, nil
 }
 
 // Runs the server
