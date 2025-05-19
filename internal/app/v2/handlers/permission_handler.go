@@ -40,6 +40,7 @@ func (ph *PermissionHandler) RegisterPermission(c *gin.Context) (*ApiResponse, e
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -87,6 +88,7 @@ func (ph *PermissionHandler) GetAllPermissions(c *gin.Context) (*ApiResponse, er
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -144,6 +146,7 @@ func (ph *PermissionHandler) GetPermissionByID(c *gin.Context) (*ApiResponse, er
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -192,6 +195,7 @@ func (ph *PermissionHandler) UpdatePermission(c *gin.Context) (*ApiResponse, err
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -245,6 +249,7 @@ func (ph *PermissionHandler) DeletePermission(c *gin.Context) (*ApiResponse, err
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 

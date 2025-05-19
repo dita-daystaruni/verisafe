@@ -35,6 +35,7 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -105,6 +106,7 @@ func (uh *UserHandler) CountAllUsers(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -145,6 +147,7 @@ func (uh *UserHandler) CountLoginCountsToday(c *gin.Context) (*ApiResponse, erro
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -187,6 +190,7 @@ func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -236,6 +240,7 @@ func (uh *UserHandler) GetUserByUsername(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -280,6 +285,7 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -337,6 +343,7 @@ func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -396,6 +403,7 @@ func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) (*ApiResponse, error)
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -445,6 +453,7 @@ func (uh *UserHandler) DeleteUser(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -499,6 +508,7 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -551,6 +561,7 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -605,6 +616,7 @@ func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -655,6 +667,7 @@ func (uh *UserHandler) UpdateUserProfilePhoto(c *gin.Context) (*ApiResponse, err
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -769,6 +782,7 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) (*ApiResponse, erro
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 

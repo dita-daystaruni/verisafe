@@ -39,7 +39,7 @@ func NewServer() (*Server, error) {
 
 	dbConfig.MaxConns = 10
 	dbConfig.MinConns = 5
-	dbConfig.MaxConnLifetime = time.Hour
+	dbConfig.MaxConnLifetime = time.Minute * 30
 
 	connPool, err := pgxpool.NewWithConfig(context.Background(), dbConfig)
 	if err != nil {

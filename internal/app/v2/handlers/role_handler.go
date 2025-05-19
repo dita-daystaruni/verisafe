@@ -33,6 +33,7 @@ func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -87,6 +88,7 @@ func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -151,6 +153,7 @@ func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -207,6 +210,7 @@ func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -259,6 +263,7 @@ func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -313,6 +318,7 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -370,6 +376,7 @@ func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, err
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -432,6 +439,7 @@ func (rh *RoleHandler) RemovePermissionFromRole(c *gin.Context) (*ApiResponse, e
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -494,6 +502,7 @@ func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, err
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -542,6 +551,7 @@ func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -606,6 +616,7 @@ func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) 
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
@@ -668,6 +679,7 @@ func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {

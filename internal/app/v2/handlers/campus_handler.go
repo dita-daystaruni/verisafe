@@ -32,6 +32,7 @@ func (ch *CampusHandler) RegisterCampus(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -84,6 +85,7 @@ func (ch *CampusHandler) GetAllCampuses(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -143,6 +145,7 @@ func (ch *CampusHandler) GetCampusByID(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -200,6 +203,7 @@ func (ch *CampusHandler) UpdateCampus(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
@@ -270,6 +274,7 @@ func (ch *CampusHandler) DeleteCampus(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 

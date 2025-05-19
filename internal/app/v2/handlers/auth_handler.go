@@ -34,6 +34,8 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 		return nil, err
 	}
 
+	defer poolConn.Release()
+
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer func() {
 		if tx != nil {
