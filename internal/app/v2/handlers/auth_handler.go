@@ -89,7 +89,7 @@ func (ah *AuthHandler) Login(c *gin.Context) (*ApiResponse, error) {
 		repository.UpdateUserCredentialsParams{
 			UserID:    creds.UserID,
 			Password:  creds.Password,
-			LastLogin: carbon.Now(),
+			LastLogin: *carbon.Now(),
 		},
 	)
 	if err != nil {
