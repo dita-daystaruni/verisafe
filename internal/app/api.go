@@ -25,6 +25,7 @@ func RegisterHandlers(s *Server) {
 	ch := handlers.CampusHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
 	rh := handlers.RoleHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
 	ph := handlers.PermissionHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
+	refHandler := handlers.ReferalHandler{Pool: s.Pool, Cfg: s.Config, Logger: logger}
 
 	v2 := s.Group("/v2")
 	{
@@ -186,6 +187,15 @@ func RegisterHandlers(s *Server) {
 			middlewares.PermissionMiddleware([]string{"delete:permission"}, s.Config),
 			handlers.ApiAdapter(ph.DeletePermission),
 		)
+	}
+
+	v2Referrals := v2.Group("/referals")
+	{
+		v2Referrals.POST("/create-user-referal",
+			middlewares.PermissionMiddleware([]string{"update:profile"}, s.Config),
+			handlers.ApiAdapter(refHandler.CreateReferal),
+		)
+
 	}
 
 	logger.WithFields(logrus.Fields{}).Info("Server started and running")
