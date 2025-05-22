@@ -26,7 +26,7 @@ func (rh *ReferalHandler) CreateReferal(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 

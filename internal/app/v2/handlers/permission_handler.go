@@ -36,7 +36,7 @@ func (ph *PermissionHandler) RegisterPermission(c *gin.Context) (*ApiResponse, e
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -84,7 +84,7 @@ func (ph *PermissionHandler) GetAllPermissions(c *gin.Context) (*ApiResponse, er
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func (ph *PermissionHandler) GetPermissionByID(c *gin.Context) (*ApiResponse, er
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -191,7 +191,7 @@ func (ph *PermissionHandler) UpdatePermission(c *gin.Context) (*ApiResponse, err
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -245,7 +245,7 @@ func (ph *PermissionHandler) DeletePermission(c *gin.Context) (*ApiResponse, err
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 

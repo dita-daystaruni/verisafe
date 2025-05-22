@@ -31,7 +31,7 @@ func (uh *UserHandler) RegisterUser(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (uh *UserHandler) CountAllUsers(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -143,7 +143,7 @@ func (uh *UserHandler) CountLoginCountsToday(c *gin.Context) (*ApiResponse, erro
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -186,7 +186,7 @@ func (uh *UserHandler) GetUserByID(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -236,7 +236,7 @@ func (uh *UserHandler) GetUserByUsername(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -281,7 +281,7 @@ func (uh *UserHandler) GetAllUsers(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -339,7 +339,7 @@ func (uh *UserHandler) GetAllActiveUsers(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -399,7 +399,7 @@ func (uh *UserHandler) GetAllInActiveUsers(c *gin.Context) (*ApiResponse, error)
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -449,7 +449,7 @@ func (uh *UserHandler) DeleteUser(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -504,7 +504,7 @@ func (uh *UserHandler) GetUserProfile(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -557,7 +557,7 @@ func (uh *UserHandler) CreateUserProfile(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -612,7 +612,7 @@ func (uh *UserHandler) UpdateUserProfile(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -663,7 +663,7 @@ func (uh *UserHandler) UpdateUserProfilePhoto(c *gin.Context) (*ApiResponse, err
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -714,7 +714,7 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) (*ApiResponse, erro
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -778,7 +778,7 @@ func (uh *UserHandler) UpdateUserCredentials(c *gin.Context) (*ApiResponse, erro
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 

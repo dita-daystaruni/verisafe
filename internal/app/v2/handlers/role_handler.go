@@ -29,7 +29,7 @@ func (rh *RoleHandler) RegisterRole(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -84,7 +84,7 @@ func (rh *RoleHandler) GetAllRoles(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -149,7 +149,7 @@ func (rh *RoleHandler) GetRoleByID(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -206,7 +206,7 @@ func (rh *RoleHandler) GetRoleByName(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -259,7 +259,7 @@ func (rh *RoleHandler) UpdateRole(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -314,7 +314,7 @@ func (rh *RoleHandler) DeleteRole(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -372,7 +372,7 @@ func (rh *RoleHandler) AssignPermissionToRole(c *gin.Context) (*ApiResponse, err
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -498,7 +498,7 @@ func (rh *RoleHandler) ListPermissionsForRole(c *gin.Context) (*ApiResponse, err
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -547,7 +547,7 @@ func (rh *RoleHandler) AssignRoleToUser(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -612,7 +612,7 @@ func (rh *RoleHandler) RemoveRoleFromUser(c *gin.Context) (*ApiResponse, error) 
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -675,7 +675,7 @@ func (rh *RoleHandler) ListRolesForUser(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 

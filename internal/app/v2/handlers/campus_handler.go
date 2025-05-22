@@ -28,7 +28,7 @@ func (ch *CampusHandler) RegisterCampus(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -81,7 +81,7 @@ func (ch *CampusHandler) GetAllCampuses(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -141,7 +141,7 @@ func (ch *CampusHandler) GetCampusByID(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -199,7 +199,7 @@ func (ch *CampusHandler) UpdateCampus(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
@@ -270,7 +270,7 @@ func (ch *CampusHandler) DeleteCampus(c *gin.Context) (*ApiResponse, error) {
 			"timestamp":  time.Now(),
 			"client_ip":  c.ClientIP(),
 			"user_agent": c.Request.UserAgent(),
-		})
+		}).Error(err)
 		return nil, err
 	}
 
