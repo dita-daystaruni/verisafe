@@ -718,6 +718,7 @@ func (uh *UserHandler) CreateUserCredentials(c *gin.Context) (*ApiResponse, erro
 		return nil, err
 	}
 
+	defer poolConn.Release()
 	tx, _ := poolConn.Conn().Begin(c.Request.Context())
 	defer tx.Rollback(c.Request.Context())
 
