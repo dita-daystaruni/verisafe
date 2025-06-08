@@ -16,17 +16,16 @@ services:
       - verisafe_network
     volumes:
       - uploads:/app/uploads
-    # Ensure we restart when migrations finish
-    restart: on-failure
+    restart: always
 
   postgres:
-    image: postgres:latest
+    image: postgres:15
     environment:
-      POSTGRES_USER: verisafe
-      POSTGRES_PASSWORD: verisafe
-      POSTGRES_DB: verisafe
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     healthcheck:
-      test: [CMD-SHELL, "sh -c 'pg_isready -U verisafe -d verisafe'"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,6 +35,7 @@ services:
       - verisafe_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
 
   migrations:
     image: gomicro/goose:latest
@@ -45,17 +45,37 @@ services:
         condition: service_healthy
     entrypoint: ["goose", "up"]
     environment:
-      - GOOSE_DRIVER=${GOOSE_DRIVER}
-      - GOOSE_DBSTRING=${GOOSE_DBSTRING}
-      - GOOSE_MIGRATION_DIR=${GOOSE_MIGRATION_DIR}
+      GOOSE_DRIVER: ${GOOSE_DRIVER}
+      GOOSE_DBSTRING: ${GOOSE_DBSTRING}
+      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
     env_file:
       - ./.env
     volumes:
       - ./database/migrations:/app/database/migrations
     networks:
       - verisafe_network
-    # Exit immediately after completion
     restart: "no"
+
+  baserow:
+    image: baserow/baserow:latest
+    container_name: baserow
+    depends_on:
+      - postgres
+    environment:
+      BASEROW_DATABASE_HOST: ${DB_HOST}
+      BASEROW_DATABASE_PORT: ${DB_PORT}
+      BASEROW_DATABASE_NAME: ${DB_NAME}
+      BASEROW_DATABASE_USER: ${DB_USER}
+      BASEROW_DATABASE_PASSWORD: ${DB_PASSWORD}
+      BASEROW_ADMIN_EMAIL: info@opencrafts.io
+      BASEROW_ADMIN_PASSWORD: ${BASEROW_PASS}
+    ports:
+      - "3001:80"
+    networks:
+      - verisafe_network
+    volumes:
+      - baserow_data:/baserow/media
+    restart: always
 
 networks:
   verisafe_network:
@@ -64,3 +84,4 @@ networks:
 volumes:
   postgres_data:
   uploads:
+  baserow_data:
